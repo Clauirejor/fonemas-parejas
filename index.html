@@ -95,13 +95,13 @@ body.theme-pergamino{
 .mode-name{font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;color:var(--text);margin-bottom:3px;}
 .mode-desc{font-size:11px;color:var(--muted);font-weight:600;line-height:1.4;}
 .levels-scroll{width:100%;max-width:600px;overflow-x:auto;padding-bottom:8px;}
-.levels-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;}
-.level-btn{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-sm);padding:18px 8px;text-align:center;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow);}
+.levels-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;}
+.level-btn{background:var(--card);border:3px solid var(--border);border-radius:var(--radius);padding:22px 8px;text-align:center;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow);}
 .level-btn:active{transform:scale(0.95);}
 .level-btn.locked{opacity:0.45;cursor:not-allowed;}
-.lb-emoji{font-size:32px;display:block;margin-bottom:6px;}
-.lb-name{font-family:'Baloo 2',cursive;font-size:18px;font-weight:900;color:var(--text);}
-.lb-progress{font-size:12px;margin-top:4px;color:var(--accent);}
+.lb-emoji{font-size:44px;display:block;margin-bottom:8px;}
+.lb-name{font-family:'Baloo 2',cursive;font-size:26px;font-weight:900;color:var(--text);line-height:1.1;}
+.lb-progress{font-size:13px;margin-top:6px;color:var(--accent);}
 
 /* GAME */
 #game{background:var(--bg);padding:12px;justify-content:flex-start;height:100%;}
@@ -696,25 +696,108 @@ function getAllPhrases(levelId){
 function getPhraseAudioKey(phraseId){ return `phrase_${phraseId}`; }
 
 // ============================================================
-// AUDIO UNLOCK — Safari iPad requires user interaction
+// AUDIO — Safari iPad compatible
+// Safari requiere que el audio se inicie DENTRO del evento touch/click
 // ============================================================
-let audioUnlocked = false;
 
-function unlockAudio(){
-  if(audioUnlocked) return;
-  const ctx = new (window.AudioContext||window.webkitAudioContext)();
-  ctx.resume().then(()=>{ audioUnlocked=true; });
-  // Play silent buffer to unlock
-  const buf = ctx.createBuffer(1,1,22050);
-  const src = ctx.createBufferSource();
-  src.buffer = buf;
-  src.connect(ctx.destination);
-  src.start(0);
+// Speak word: fonema + palabra usando síntesis de voz
+// La síntesis siempre funciona en Safari sin restricciones
+function speak(phoneme, word, imgKey){
+  const pill=document.getElementById('speakPill');
+  document.getElementById('speakText').textContent=`${phoneme}... ${word}`;
+  pill.classList.add('show');
+  setTimeout(()=>pill.classList.remove('show'), 2800);
+
+  // Si hay audio local del iPad para esta palabra, úsalo
+  if(S.wordAudios&&S.wordAudios[imgKey]){
+    try{
+      const a=new Audio(S.wordAudios[imgKey]);
+      a.play().catch(()=>speakWithSynthesis(phoneme,word));
+      return;
+    }catch(e){}
+  }
+  // Si hay audio en GitHub, intenta cargarlo
+  // Si falla o tarda, usa síntesis
+  const githubUrl=`${GITHUB}/audios/${imgKey}.mp3`;
+  const a=new Audio(githubUrl);
+  let played=false;
+  a.oncanplaythrough=()=>{
+    if(!played){played=true;a.play().catch(()=>speakWithSynthesis(phoneme,word));}
+  };
+  a.onerror=()=>{if(!played){played=true;speakWithSynthesis(phoneme,word);}};
+  // Timeout — si en 1.5s no carga, usa síntesis
+  setTimeout(()=>{if(!played){played=true;a.pause();speakWithSynthesis(phoneme,word);}},1500);
+  a.load();
 }
 
-// Call on any tap
-document.addEventListener('touchstart', unlockAudio, {once:true});
-document.addEventListener('click', unlockAudio, {once:true});
+function speakWithSynthesis(phoneme, word){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  // Pausa breve para que Safari no corte el primer utterance
+  setTimeout(()=>{
+    const u1=new SpeechSynthesisUtterance(phoneme);
+    u1.lang='es-ES';u1.rate=0.75;u1.pitch=1.1;u1.volume=1;
+    window.speechSynthesis.speak(u1);
+    setTimeout(()=>{
+      const u2=new SpeechSynthesisUtterance(word);
+      u2.lang='es-ES';u2.rate=0.85;u2.pitch=1.1;u2.volume=1;
+      window.speechSynthesis.speak(u2);
+    },800);
+  },100);
+}
+
+// Frase: audio local > GitHub > síntesis
+function speakPhrase(audioKey, phrase){
+  if(S.phraseAudios&&S.phraseAudios[audioKey]){
+    try{
+      const a=new Audio(S.phraseAudios[audioKey]);
+      a.play().catch(()=>speakText(phrase));
+      return;
+    }catch(e){}
+  }
+  const githubUrl=`${GITHUB}/frases/${audioKey}.mp3`;
+  const a=new Audio(githubUrl);
+  let played=false;
+  a.oncanplaythrough=()=>{if(!played){played=true;a.play().catch(()=>speakText(phrase));}};
+  a.onerror=()=>{if(!played){played=true;speakText(phrase);}};
+  setTimeout(()=>{if(!played){played=true;a.pause();speakText(phrase);}},1500);
+  a.load();
+}
+
+function speakText(text){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='es-ES';u.rate=0.82;u.pitch=1.05;u.volume=1;
+    window.speechSynthesis.speak(u);
+  },100);
+}
+
+// Wrapper legacy
+function speakWord(phoneme,word,imgKey){speak(phoneme,word,imgKey);}
+
+// AUDIO UNLOCK — desbloquea AudioContext en Safari con primer toque
+(function(){
+  let unlocked=false;
+  function unlock(){
+    if(unlocked)return;unlocked=true;
+    try{
+      const ctx=new(window.AudioContext||window.webkitAudioContext)();
+      const buf=ctx.createBuffer(1,1,22050);
+      const src=ctx.createBufferSource();
+      src.buffer=buf;src.connect(ctx.destination);src.start(0);
+      ctx.resume();
+    }catch(e){}
+    // También desbloquea síntesis de voz con utterance vacío
+    if(window.speechSynthesis){
+      const u=new SpeechSynthesisUtterance('');
+      window.speechSynthesis.speak(u);
+    }
+  }
+  document.addEventListener('touchstart',unlock,{once:true,passive:true});
+  document.addEventListener('click',unlock,{once:true});
+})();
 const THEMES = ['azul','rosa','pergamino'];
 
 function setTheme(t){
@@ -767,80 +850,6 @@ function updatePinDots(){
 }
 
 // ============================================================
-// AUDIO POR CAPAS — palabra: iPad > GitHub > síntesis
-// ============================================================
-async function speakWord(phoneme, word, imgKey){
-  window.speechSynthesis && window.speechSynthesis.cancel();
-  const pill=document.getElementById('speakPill');
-  document.getElementById('speakText').textContent=`${phoneme}... ${word}`;
-  pill.classList.add('show');
-  setTimeout(()=>pill.classList.remove('show'), 2500);
-
-  // 1. Audio local iPad
-  if(S.wordAudios && S.wordAudios[imgKey]){
-    try{
-      const a=new Audio(S.wordAudios[imgKey]);
-      a.play().catch(()=>{}); return;
-    }catch(e){}
-  }
-  // 2. Audio en GitHub /audios/
-  try{
-    const url=`${GITHUB}/audios/${imgKey}.mp3`;
-    const a=new Audio(url);
-    a.onerror=null;
-    const ok = await new Promise(res=>{
-      a.oncanplaythrough=()=>res(true);
-      a.onerror=()=>res(false);
-      setTimeout(()=>res(false),2000);
-      a.load();
-    });
-    if(ok){ a.play().catch(()=>{}); return; }
-  }catch(e){}
-  // 3. Síntesis iPad
-  if(!window.speechSynthesis)return;
-  const u1=new SpeechSynthesisUtterance(phoneme);
-  u1.lang='es-ES';u1.rate=0.7;u1.pitch=1.1;
-  const u2=new SpeechSynthesisUtterance(word);
-  u2.lang='es-ES';u2.rate=0.85;u2.pitch=1.1;
-  u2.onend=()=>setTimeout(()=>pill.classList.remove('show'),300);
-  window.speechSynthesis.speak(u1);
-  setTimeout(()=>window.speechSynthesis.speak(u2),900);
-}
-
-// Wrapper para compatibilidad (memoria/conectar)
-function speak(phoneme, word, imgKey){
-  speakWord(phoneme, word, imgKey||`${phoneme}_${word}`);
-}
-
-// Frase: iPad > GitHub > síntesis
-async function speakPhrase(audioKey, phrase){
-  // 1. Audio local iPad
-  if(S.phraseAudios&&S.phraseAudios[audioKey]){
-    try{const a=new Audio(S.phraseAudios[audioKey]);a.play().catch(()=>{});return;}catch(e){}
-  }
-  // 2. Audio en GitHub /frases/
-  try{
-    const url=`${GITHUB}/frases/${audioKey}.mp3`;
-    const a=new Audio(url);
-    const ok=await new Promise(res=>{
-      a.oncanplaythrough=()=>res(true);
-      a.onerror=()=>res(false);
-      setTimeout(()=>res(false),2000);
-      a.load();
-    });
-    if(ok){a.play().catch(()=>{});return;}
-  }catch(e){}
-  // 3. Síntesis iPad
-  speakText(phrase);
-}
-
-function speakText(text,rate=0.8){
-  if(!window.speechSynthesis)return;
-  window.speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text);u.lang='es-ES';u.rate=rate;u.pitch=1.05;
-  window.speechSynthesis.speak(u);
-}
-
 // ============================================================
 // NAV
 // ============================================================
