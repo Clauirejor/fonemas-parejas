@@ -95,13 +95,13 @@ body.theme-pergamino{
 .mode-name{font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;color:var(--text);margin-bottom:3px;}
 .mode-desc{font-size:11px;color:var(--muted);font-weight:600;line-height:1.4;}
 .levels-scroll{width:100%;max-width:600px;overflow-x:auto;padding-bottom:8px;}
-.levels-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;}
-.level-btn{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-sm);padding:12px 6px;text-align:center;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow);}
+.levels-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;}
+.level-btn{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-sm);padding:18px 8px;text-align:center;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow);}
 .level-btn:active{transform:scale(0.95);}
 .level-btn.locked{opacity:0.45;cursor:not-allowed;}
-.lb-emoji{font-size:22px;display:block;margin-bottom:3px;}
-.lb-name{font-family:'Baloo 2',cursive;font-size:12px;font-weight:800;color:var(--text);}
-.lb-progress{font-size:10px;margin-top:3px;color:var(--accent);}
+.lb-emoji{font-size:32px;display:block;margin-bottom:6px;}
+.lb-name{font-family:'Baloo 2',cursive;font-size:18px;font-weight:900;color:var(--text);}
+.lb-progress{font-size:12px;margin-top:4px;color:var(--accent);}
 
 /* GAME */
 #game{background:var(--bg);padding:12px;justify-content:flex-start;height:100%;}
@@ -696,8 +696,25 @@ function getAllPhrases(levelId){
 function getPhraseAudioKey(phraseId){ return `phrase_${phraseId}`; }
 
 // ============================================================
-// THEMES
+// AUDIO UNLOCK — Safari iPad requires user interaction
 // ============================================================
+let audioUnlocked = false;
+
+function unlockAudio(){
+  if(audioUnlocked) return;
+  const ctx = new (window.AudioContext||window.webkitAudioContext)();
+  ctx.resume().then(()=>{ audioUnlocked=true; });
+  // Play silent buffer to unlock
+  const buf = ctx.createBuffer(1,1,22050);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  src.connect(ctx.destination);
+  src.start(0);
+}
+
+// Call on any tap
+document.addEventListener('touchstart', unlockAudio, {once:true});
+document.addEventListener('click', unlockAudio, {once:true});
 const THEMES = ['azul','rosa','pergamino'];
 
 function setTheme(t){
@@ -753,7 +770,6 @@ function updatePinDots(){
 // AUDIO POR CAPAS — palabra: iPad > GitHub > síntesis
 // ============================================================
 async function speakWord(phoneme, word, imgKey){
-  if(!window.speechSynthesis && !S.wordAudios) return;
   window.speechSynthesis && window.speechSynthesis.cancel();
   const pill=document.getElementById('speakPill');
   document.getElementById('speakText').textContent=`${phoneme}... ${word}`;
@@ -764,20 +780,28 @@ async function speakWord(phoneme, word, imgKey){
   if(S.wordAudios && S.wordAudios[imgKey]){
     try{
       const a=new Audio(S.wordAudios[imgKey]);
-      await a.play();return;
+      a.play().catch(()=>{}); return;
     }catch(e){}
   }
   // 2. Audio en GitHub /audios/
   try{
     const url=`${GITHUB}/audios/${imgKey}.mp3`;
     const a=new Audio(url);
-    await new Promise((res,rej)=>{a.oncanplaythrough=res;a.onerror=rej;a.load();});
-    await a.play();return;
+    a.onerror=null;
+    const ok = await new Promise(res=>{
+      a.oncanplaythrough=()=>res(true);
+      a.onerror=()=>res(false);
+      setTimeout(()=>res(false),2000);
+      a.load();
+    });
+    if(ok){ a.play().catch(()=>{}); return; }
   }catch(e){}
   // 3. Síntesis iPad
   if(!window.speechSynthesis)return;
-  const u1=new SpeechSynthesisUtterance(phoneme);u1.lang='es-ES';u1.rate=0.7;u1.pitch=1.1;
-  const u2=new SpeechSynthesisUtterance(word);u2.lang='es-ES';u2.rate=0.85;u2.pitch=1.1;
+  const u1=new SpeechSynthesisUtterance(phoneme);
+  u1.lang='es-ES';u1.rate=0.7;u1.pitch=1.1;
+  const u2=new SpeechSynthesisUtterance(word);
+  u2.lang='es-ES';u2.rate=0.85;u2.pitch=1.1;
   u2.onend=()=>setTimeout(()=>pill.classList.remove('show'),300);
   window.speechSynthesis.speak(u1);
   setTimeout(()=>window.speechSynthesis.speak(u2),900);
@@ -792,14 +816,19 @@ function speak(phoneme, word, imgKey){
 async function speakPhrase(audioKey, phrase){
   // 1. Audio local iPad
   if(S.phraseAudios&&S.phraseAudios[audioKey]){
-    try{const a=new Audio(S.phraseAudios[audioKey]);await a.play();return;}catch(e){}
+    try{const a=new Audio(S.phraseAudios[audioKey]);a.play().catch(()=>{});return;}catch(e){}
   }
   // 2. Audio en GitHub /frases/
   try{
     const url=`${GITHUB}/frases/${audioKey}.mp3`;
     const a=new Audio(url);
-    await new Promise((res,rej)=>{a.oncanplaythrough=res;a.onerror=rej;a.load();});
-    await a.play();return;
+    const ok=await new Promise(res=>{
+      a.oncanplaythrough=()=>res(true);
+      a.onerror=()=>res(false);
+      setTimeout(()=>res(false),2000);
+      a.load();
+    });
+    if(ok){a.play().catch(()=>{});return;}
   }catch(e){}
   // 3. Síntesis iPad
   speakText(phrase);
