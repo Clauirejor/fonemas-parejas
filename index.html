@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Parejas">
+<meta name="theme-color" content="#C8DEFF">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<title>Fonemas · Parejas</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;font-family:'Quicksand',sans-serif;background:#EEF4FF;overflow:hidden;}
+
+/* ===== THEMES ===== */
+:root{
+  --bg:#EEF4FF;--bg2:#E0ECFF;--card:#FFFFFF;--card2:#F0F6FF;
+  --border:#C8DEFF;--accent:#3A7BD5;--accent2:#FF6B9D;--accent3:#E8A020;
+  --accent4:#16A97A;--accent5:#0FA8CC;--accentd:#2560B0;
+  --text:#1A2B4A;--muted:#6B88B0;--radius:20px;--radius-sm:14px;
+  --shadow:0 2px 16px rgba(58,123,213,0.10);--shadow-lg:0 4px 28px rgba(58,123,213,0.15);
+  --welcome-bg:linear-gradient(160deg,#EEF4FF,#D8EAFF);
+  --card-front-bg:linear-gradient(135deg,#3A7BD5,#5A9BF5);
+  --btn-primary-bg:linear-gradient(135deg,#3A7BD5,#5A9BF5);
+  --btn-again-bg:linear-gradient(135deg,#16A97A,#26de81);
+  --btn-again-shadow:#0A7A58;
+}
+body.theme-rosa{
+  --bg:#FFF0F6;--bg2:#FFE0EF;--card:#FFFFFF;--card2:#FFF0F8;
+  --border:#FFB8D8;--accent:#D5318A;--accent2:#FF6B9D;--accent3:#E8A020;
+  --accent4:#16A97A;--accent5:#CC44AA;--accentd:#A01868;
+  --text:#3A0A22;--muted:#A06080;
+  --shadow:0 2px 16px rgba(213,49,138,0.10);--shadow-lg:0 4px 28px rgba(213,49,138,0.15);
+  --welcome-bg:linear-gradient(160deg,#FFF0F6,#FFD8EE);
+  --card-front-bg:linear-gradient(135deg,#D5318A,#FF6BAD);
+  --btn-primary-bg:linear-gradient(135deg,#D5318A,#FF6BAD);
+  --btn-again-bg:linear-gradient(135deg,#16A97A,#26de81);
+  --btn-again-shadow:#0A7A58;
+}
+body.theme-pergamino{
+  --bg:#F5EDD8;--bg2:#EDE0C4;--card:#FFFBF0;--card2:#F8F0DC;
+  --border:#D4B896;--accent:#8B5E3C;--accent2:#C4724A;--accent3:#B8860B;
+  --accent4:#5A7A3A;--accent5:#7A5C8A;--accentd:#5C3A20;
+  --text:#2C1A0A;--muted:#8A6A4A;
+  --shadow:0 2px 16px rgba(139,94,60,0.10);--shadow-lg:0 4px 28px rgba(139,94,60,0.15);
+  --welcome-bg:linear-gradient(160deg,#F5EDD8,#E8D8B8);
+  --card-front-bg:linear-gradient(135deg,#8B5E3C,#C4924A);
+  --btn-primary-bg:linear-gradient(135deg,#8B5E3C,#C4924A);
+  --btn-again-bg:linear-gradient(135deg,#5A7A3A,#7AAA4A);
+  --btn-again-shadow:#3A5A1A;
+}
+
+/* Theme selector */
+.theme-selector{display:flex;gap:10px;justify-content:center;margin-bottom:20px;}
+.theme-btn{width:44px;height:44px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:all 0.2s;font-size:20px;display:flex;align-items:center;justify-content:center;}
+.theme-btn.active{border-color:var(--accent);transform:scale(1.15);}
+.theme-btn.t-azul{background:linear-gradient(135deg,#3A7BD5,#C8DEFF);}
+.theme-btn.t-rosa{background:linear-gradient(135deg,#D5318A,#FFB8D8);}
+.theme-btn.t-pergamino{background:linear-gradient(135deg,#8B5E3C,#F5EDD8);}
+.screen{display:none;position:fixed;top:0;left:0;width:100%;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.screen.active{display:flex;flex-direction:column;align-items:center;}
+
+/* WELCOME */
+#welcome{background:var(--welcome-bg);justify-content:center;align-items:center;padding:30px 20px;}
+.welcome-box{text-align:center;max-width:400px;width:100%;}
+.welcome-emoji{font-size:80px;display:block;animation:float 3s ease-in-out infinite;line-height:1.3;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+.welcome-title{font-family:'Baloo 2',cursive;font-size:38px;font-weight:900;color:var(--text);margin:10px 0 4px;line-height:1.1;}
+.welcome-title span{color:var(--accent);}
+.welcome-sub{font-size:15px;color:var(--muted);font-weight:600;margin-bottom:28px;}
+.welcome-label{font-size:16px;font-weight:700;color:var(--text);margin-bottom:12px;}
+.name-input{width:100%;padding:16px 20px;border-radius:50px;border:2px solid var(--border);background:var(--card);color:var(--text);font-family:'Baloo 2',cursive;font-size:22px;font-weight:700;text-align:center;outline:none;margin-bottom:18px;box-shadow:var(--shadow);}
+.name-input:focus{border-color:var(--accent);}
+.btn-primary{width:100%;padding:18px;border:none;border-radius:50px;background:var(--btn-primary-bg);color:white;font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;cursor:pointer;box-shadow:0 6px 0 var(--accentd);transition:all 0.15s;}
+.btn-primary:active{transform:translateY(4px);box-shadow:0 2px 0 var(--accentd);}
+
+/* HOME */
+#home{background:var(--bg);padding:20px 16px 40px;justify-content:flex-start;}
+.home-header{width:100%;max-width:600px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.home-greeting{font-family:'Baloo 2',cursive;font-size:26px;font-weight:900;color:var(--text);}
+.home-greeting span{color:var(--accent);}
+.home-btns{display:flex;gap:8px;}
+.btn-icon{background:var(--card);border:2px solid var(--border);width:42px;height:42px;border-radius:50%;font-size:18px;cursor:pointer;color:var(--text);box-shadow:var(--shadow);}
+.streak-pill{background:var(--card);border:2px solid var(--border);border-radius:50px;padding:10px 20px;display:inline-flex;align-items:center;gap:8px;margin-bottom:18px;box-shadow:var(--shadow);}
+.streak-n{font-family:'Baloo 2',cursive;font-size:24px;font-weight:900;color:var(--accent3);}
+.streak-l{font-size:13px;color:var(--muted);font-weight:600;}
+.home-sub{font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;color:var(--muted);margin-bottom:10px;width:100%;max-width:600px;}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:600px;margin-bottom:20px;}
+.mode-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:16px 12px;text-align:center;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow);}
+.mode-card.selected{border-color:var(--accent);background:var(--card2);box-shadow:0 4px 20px rgba(58,123,213,0.18);}
+.mode-icon{font-size:36px;margin-bottom:6px;display:block;}
+.mode-name{font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;color:var(--text);margin-bottom:3px;}
+.mode-desc{font-size:11px;color:var(--muted);font-weight:600;line-height:1.4;}
+.levels-scroll{width:100%;max-width:600px;overflow-x:auto;padding-bottom:8px;}
+.levels-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;}
+.level-btn{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-sm);padding:12px 6px;text-align:center;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow);}
+.level-btn:active{transform:scale(0.95);}
+.level-btn.locked{opacity:0.45;cursor:not-allowed;}
+.lb-emoji{font-size:22px;display:block;margin-bottom:3px;}
+.lb-name{font-family:'Baloo 2',cursive;font-size:12px;font-weight:800;color:var(--text);}
+.lb-progress{font-size:10px;margin-top:3px;color:var(--accent);}
+
+/* GAME */
+#game{background:var(--bg);padding:12px;justify-content:flex-start;height:100%;}
+.game-header{width:100%;display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.btn-back-game{background:var(--card);border:2px solid var(--border);width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;color:var(--text);flex-shrink:0;box-shadow:var(--shadow);}
+.game-info{flex:1;}
+.game-level-name{font-family:'Baloo 2',cursive;font-size:17px;font-weight:800;color:var(--text);}
+.game-mode-tag{font-size:11px;color:var(--muted);font-weight:600;}
+.game-score{font-family:'Baloo 2',cursive;font-size:22px;font-weight:900;color:var(--accent);}
+.game-prog{width:100%;background:var(--border);border-radius:50px;height:8px;margin-bottom:10px;overflow:hidden;}
+.game-prog-fill{height:100%;background:linear-gradient(90deg,var(--accent4),var(--accent));border-radius:50px;transition:width 0.5s ease;}
+#gameBoard{flex:1;width:100%;display:flex;flex-direction:column;}
+
+/* MEMORY */
+.memory-grid{display:grid;gap:10px;width:100%;flex:1;}
+.mem-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);position:relative;transform-style:preserve-3d;min-height:80px;box-shadow:var(--shadow);}
+.mem-card.flipped{transform:rotateY(180deg);}
+.mem-card.matched{border-color:var(--accent4);background:#E8FFF6;}
+.mem-card.wrong{border-color:var(--accent2);animation:shake 0.4s ease;}
+@keyframes shake{0%,100%{transform:rotateY(180deg) translateX(0);}25%{transform:rotateY(180deg) translateX(-8px);}75%{transform:rotateY(180deg) translateX(8px);}}
+.card-front,.card-back{position:absolute;width:100%;height:100%;border-radius:calc(var(--radius-sm) - 2px);display:flex;align-items:center;justify-content:center;flex-direction:column;backface-visibility:hidden;-webkit-backface-visibility:hidden;padding:6px;}
+.card-front{background:var(--card-front-bg);}
+.card-back{background:var(--card2);transform:rotateY(180deg);border:1px solid var(--border);}
+.card-phoneme{font-family:'Baloo 2',cursive;font-weight:900;line-height:1;text-align:center;}
+.card-img{object-fit:contain;border-radius:8px;}
+.card-word{font-family:'Baloo 2',cursive;font-weight:800;color:var(--text);text-align:center;line-height:1.2;}
+
+/* CONNECT */
+.connect-area{width:100%;flex:1;display:flex;flex-direction:column;}
+.connect-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;}
+.connect-col{display:flex;flex-direction:column;gap:10px;}
+.connect-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-sm);text-align:center;cursor:pointer;transition:all 0.2s;flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;min-height:70px;box-shadow:var(--shadow);}
+.connect-card.selected{border-color:var(--accent);background:var(--card2);box-shadow:0 0 0 3px rgba(58,123,213,0.2);}
+.connect-card.matched{border-color:var(--accent4);background:#E8FFF6;cursor:default;}
+.connect-card.wrong{border-color:var(--accent2);animation:wrongP 0.4s ease;}
+@keyframes wrongP{0%,100%{transform:scale(1);}50%{transform:scale(0.94);}}
+.cc-phoneme{font-family:'Baloo 2',cursive;font-weight:900;line-height:1;}
+.cc-word{font-family:'Baloo 2',cursive;font-weight:800;color:var(--text);}
+
+/* EFFECTS */
+.found-flash{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(22,169,122,0.12);z-index:200;pointer-events:none;display:none;}
+.found-flash.show{display:block;animation:flashFade 0.5s ease forwards;}
+@keyframes flashFade{0%{opacity:1;}100%{opacity:0;}}
+.speaking-pill{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--accent);color:white;padding:8px 20px;border-radius:50px;font-family:'Baloo 2',cursive;font-size:15px;font-weight:700;z-index:300;display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(58,123,213,0.35);}
+.speaking-pill.show{display:flex;}
+.speaking-dot{width:8px;height:8px;border-radius:50%;background:white;animation:spkDot 0.6s ease-in-out infinite alternate;}
+@keyframes spkDot{0%{opacity:0.3;transform:scale(0.7);}100%{opacity:1;transform:scale(1.2);}}
+
+/* CELEBRATION */
+#celebration{background:linear-gradient(160deg,#EEF4FF,#D8EAFF,#E8FFF6);justify-content:center;align-items:center;padding:30px 20px;}
+canvas#confetti{position:fixed;top:0;left:0;pointer-events:none;z-index:0;}
+.celeb-box{position:relative;z-index:1;text-align:center;max-width:480px;width:100%;}
+.celeb-emoji{font-size:80px;display:block;animation:celebPop 0.7s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes celebPop{0%{transform:scale(0) rotate(-15deg);}100%{transform:scale(1) rotate(0);}}
+.celeb-title{font-family:'Baloo 2',cursive;font-size:34px;font-weight:900;color:var(--text);margin:12px 0 4px;}
+.celeb-title span{color:var(--accent);}
+.celeb-msg{font-size:16px;color:var(--muted);font-weight:600;margin-bottom:16px;}
+.stars-earned{display:flex;gap:12px;justify-content:center;margin:14px 0;}
+.star-e{font-size:44px;opacity:0;animation:starPop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+@keyframes starPop{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.celeb-phrase{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-sm);padding:16px 20px;margin:14px 0;box-shadow:var(--shadow);}
+.celeb-phrase-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;}
+.celeb-phrase-text{font-family:'Baloo 2',cursive;font-size:20px;font-weight:800;color:var(--accent);}
+.celeb-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0;}
+.cs-box{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-sm);padding:14px 8px;text-align:center;box-shadow:var(--shadow);}
+.cs-n{font-family:'Baloo 2',cursive;font-size:30px;font-weight:900;color:var(--accent);}
+.cs-l{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.celeb-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;}
+.btn-again{padding:16px;border:none;border-radius:50px;background:var(--btn-again-bg);color:white;font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 5px 0 var(--btn-again-shadow);transition:all 0.15s;}
+.btn-again:active{transform:translateY(3px);}
+.btn-home-cel{padding:16px;border:2px solid var(--border);border-radius:50px;background:var(--card);color:var(--text);font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;cursor:pointer;}
+
+/* PIN MODAL */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(26,43,74,0.5);z-index:400;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:var(--card);border-radius:var(--radius);padding:28px 24px;max-width:360px;width:100%;text-align:center;box-shadow:var(--shadow-lg);}
+.modal-title{font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px;}
+.modal-sub{font-size:14px;color:var(--muted);font-weight:600;margin-bottom:20px;}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:20px;}
+.pin-dot{width:16px;height:16px;border-radius:50%;background:var(--border);transition:all 0.2s;}
+.pin-dot.filled{background:var(--accent);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto;}
+.pin-btn{background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius-sm);padding:16px;font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:var(--text);cursor:pointer;transition:all 0.15s;}
+.pin-btn:active{background:var(--accent);color:white;border-color:var(--accent);}
+.pin-error{color:var(--accent2);font-size:13px;font-weight:700;margin-top:10px;min-height:20px;}
+.btn-cancel{background:none;border:none;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;margin-top:14px;font-family:'Quicksand',sans-serif;}
+
+/* EDIT MODE */
+#editMode{background:var(--bg);padding:16px;justify-content:flex-start;padding-bottom:60px;}
+.edit-header{width:100%;max-width:600px;display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.edit-title{font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:var(--text);flex:1;}
+.edit-badge{background:var(--accent2);color:white;font-size:11px;font-weight:700;padding:4px 10px;border-radius:50px;}
+.edit-section{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;width:100%;max-width:600px;box-shadow:var(--shadow);}
+.edit-section-title{font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.edit-level-accordion{border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden;}
+.ela-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;background:var(--bg2);}
+.ela-header:active{background:var(--border);}
+.ela-left{display:flex;align-items:center;gap:10px;}
+.ela-name{font-family:'Baloo 2',cursive;font-size:15px;font-weight:800;color:var(--text);}
+.ela-arrow{font-size:14px;color:var(--muted);transition:transform 0.3s;display:inline-block;}
+.ela-arrow.open{transform:rotate(180deg);}
+.ela-body{display:none;padding:12px;}
+.ela-body.open{display:block;}
+
+/* Frase edit */
+.frase-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1.5px solid var(--border);}
+.frase-input{flex:1;padding:10px 14px;border-radius:50px;border:2px solid var(--border);background:var(--bg);color:var(--text);font-family:'Quicksand',sans-serif;font-size:14px;font-weight:600;outline:none;}
+.frase-input:focus{border-color:var(--accent);}
+.btn-sm{padding:8px 14px;border-radius:50px;border:none;font-family:'Quicksand',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.btn-sm.blue{background:var(--accent);color:white;}
+.btn-sm.green{background:var(--accent4);color:white;}
+.btn-sm.orange{background:var(--accent3);color:white;}
+.btn-sm.red{background:#E05050;color:white;}
+.audio-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.audio-status{font-size:12px;color:var(--muted);font-weight:600;flex:1;}
+.audio-status.loaded{color:var(--accent4);}
+
+/* Sílaba edit */
+.sil-block{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;}
+.sil-title{font-family:'Baloo 2',cursive;font-size:14px;font-weight:800;color:var(--accent);margin-bottom:10px;}
+.word-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);}
+.word-item:last-child{border-bottom:none;}
+.word-img-thumb{width:36px;height:36px;border-radius:8px;object-fit:cover;background:var(--bg2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden;}
+.word-img-thumb img{width:100%;height:100%;object-fit:cover;}
+.word-label{flex:1;font-weight:700;color:var(--text);font-size:14px;}
+.word-em{font-size:16px;}
+.add-word-row{display:flex;gap:8px;margin-top:10px;}
+.add-word-input{flex:1;padding:8px 12px;border-radius:50px;border:2px solid var(--border);background:var(--bg);color:var(--text);font-family:'Quicksand',sans-serif;font-size:13px;font-weight:600;outline:none;}
+.add-word-input:focus{border-color:var(--accent);}
+
+/* ADMIN */
+#admin{background:var(--bg);padding:20px 16px 60px;justify-content:flex-start;}
+.admin-wrap{width:100%;max-width:560px;}
+.admin-hdr{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.admin-title{font-family:'Baloo 2',cursive;font-size:24px;font-weight:800;color:var(--text);}
+.asec{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow);}
+.asec-t{font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;color:var(--text);margin-bottom:12px;}
+.name-row{display:flex;gap:10px;}
+.name-edit{flex:1;padding:12px 16px;border-radius:50px;border:2px solid var(--border);background:var(--bg);color:var(--text);font-family:'Baloo 2',cursive;font-size:17px;font-weight:700;outline:none;}
+.name-edit:focus{border-color:var(--accent);}
+.btn-save{background:var(--accent);color:white;border:none;padding:12px 18px;border-radius:50px;font-family:'Quicksand',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
+.level-adm-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.level-adm-row:last-child{border-bottom:none;}
+.lar-name{font-weight:700;color:var(--text);font-size:14px;}
+.lar-detail{font-size:11px;color:var(--muted);margin-top:2px;}
+.tog{padding:7px 14px;border-radius:50px;border:none;font-family:'Quicksand',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
+.tog.on{background:#E8FFF6;color:var(--accent4);}
+.tog.off{background:var(--bg2);color:var(--muted);}
+.stats-adm{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+.rst{background:none;border:2px solid var(--border);color:var(--muted);padding:10px;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;width:100%;margin-top:10px;font-family:'Quicksand',sans-serif;}
+.btn-edit-mode{width:100%;padding:14px;border:none;border-radius:50px;background:linear-gradient(135deg,var(--accent2),#FF9F43);color:white;font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 5px 0 #CC4477;margin-bottom:12px;}
+</style>
+</head>
+<body>
+
+<div class="found-flash" id="foundFlash"></div>
+<div class="speaking-pill" id="speakPill"><span class="speaking-dot"></span><span id="speakText">PA... pato</span></div>
+
+<!-- PIN MODAL -->
+<div class="modal-overlay" id="pinModal">
+  <div class="modal-box">
+    <div class="modal-title">🔒 Modo edición</div>
+    <div class="modal-sub">Introduce el PIN para continuar</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-btn" onclick="pinTap('1')">1</button>
+      <button class="pin-btn" onclick="pinTap('2')">2</button>
+      <button class="pin-btn" onclick="pinTap('3')">3</button>
+      <button class="pin-btn" onclick="pinTap('4')">4</button>
+      <button class="pin-btn" onclick="pinTap('5')">5</button>
+      <button class="pin-btn" onclick="pinTap('6')">6</button>
+      <button class="pin-btn" onclick="pinTap('7')">7</button>
+      <button class="pin-btn" onclick="pinTap('8')">8</button>
+      <button class="pin-btn" onclick="pinTap('9')">9</button>
+      <button class="pin-btn" onclick="pinClear()" style="font-size:16px;">⌫</button>
+      <button class="pin-btn" onclick="pinTap('0')">0</button>
+      <button class="pin-btn" onclick="pinCancel()" style="font-size:14px;color:var(--muted);">✕</button>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+  </div>
+</div>
+
+<!-- WELCOME -->
+<div id="welcome" class="screen active">
+  <div class="welcome-box">
+    <span class="welcome-emoji">🎴</span>
+    <div class="welcome-title">Fonemas<br><span>Parejas</span></div>
+    <div class="welcome-sub">El juego de memoria de los sonidos</div>
+    <div style="font-size:14px;font-weight:700;color:var(--muted);margin-bottom:10px;">Elige tu color favorito</div>
+    <div class="theme-selector">
+      <button class="theme-btn t-azul active" id="tb-azul" onclick="setTheme('azul')" title="Azul">🔵</button>
+      <button class="theme-btn t-rosa" id="tb-rosa" onclick="setTheme('rosa')" title="Rosa">🌸</button>
+      <button class="theme-btn t-pergamino" id="tb-pergamino" onclick="setTheme('pergamino')" title="Pergamino">📜</button>
+    </div>
+    <div class="welcome-label">¿Cómo te llamas?</div>
+    <input class="name-input" id="nameInput" type="text" placeholder="Tu nombre aquí" maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter')saveName()">
+    <button class="btn-primary" onclick="saveName()">¡A jugar! 🎮</button>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="home" class="screen">
+  <div class="home-header">
+    <div class="home-greeting">¡Hola, <span id="homeName"></span>!</div>
+    <div class="home-btns">
+      <button class="btn-icon" onclick="goAdmin()" title="Ajustes">⚙️</button>
+      <button class="btn-icon" onclick="askPin('edit')" title="Modo edición">✏️</button>
+    </div>
+  </div>
+  <div class="streak-pill"><span class="streak-n" id="streakN">0</span><span class="streak-l">días jugando 🔥</span></div>
+  <div class="home-sub">Elige el modo de juego</div>
+  <div class="mode-cards">
+    <div class="mode-card selected" id="modeConnect" onclick="selectMode('connect')">
+      <span class="mode-icon">🔗</span>
+      <div class="mode-name">Unir</div>
+      <div class="mode-desc">Fonema a la izquierda, palabra a la derecha</div>
+    </div>
+    <div class="mode-card" id="modeMemory" onclick="selectMode('memory')">
+      <span class="mode-icon">🃏</span>
+      <div class="mode-name">Memoria</div>
+      <div class="mode-desc">Tarjetas boca abajo. Encuéntralas de dos en dos</div>
+    </div>
+  </div>
+  <div class="home-sub">Elige un nivel</div>
+  <div class="levels-scroll"><div class="levels-grid" id="levelsGrid"></div></div>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div class="game-header">
+    <button class="btn-back-game" onclick="goHome()">←</button>
+    <div class="game-info">
+      <div class="game-level-name" id="gameLevelName">Nivel P</div>
+      <div class="game-mode-tag" id="gameModeTag">🔗 Unir</div>
+    </div>
+    <div class="game-score" id="gameScore">0</div>
+  </div>
+  <div class="game-prog"><div class="game-prog-fill" id="gameProgFill" style="width:0%"></div></div>
+  <div id="gameBoard"></div>
+</div>
+
+<!-- CELEBRATION -->
+<div id="celebration" class="screen">
+  <canvas id="confetti"></canvas>
+  <div class="celeb-box">
+    <span class="celeb-emoji" id="celebEmoji">🏆</span>
+    <div class="celeb-title" id="celebTitle">¡Increíble!</div>
+    <div class="celeb-msg" id="celebMsg">Has encontrado todas las parejas</div>
+    <div class="stars-earned" id="starsEarned"></div>
+    <div class="celeb-phrase" id="celebPhraseBox" style="display:none">
+      <div class="celeb-phrase-label">🎵 Frase del nivel</div>
+      <div class="celeb-phrase-text" id="celebPhraseText"></div>
+    </div>
+    <div class="celeb-stats" id="celebStats"></div>
+    <div class="celeb-btns">
+      <button class="btn-again" onclick="playAgain()">🔄 Otra vez</button>
+      <button class="btn-home-cel" onclick="goHome()">🏠 Inicio</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODE -->
+<div id="editMode" class="screen">
+  <div class="edit-header">
+    <button class="btn-back-game" onclick="goHome()">←</button>
+    <div class="edit-title">Modo edición</div>
+    <span class="edit-badge">✏️ Editor</span>
+  </div>
+  <div id="editContent" style="width:100%;max-width:600px;"></div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin" class="screen">
+  <div class="admin-wrap">
+    <div class="admin-hdr">
+      <button class="btn-back-game" onclick="goHome()">←</button>
+      <div class="admin-title">⚙️ Ajustes</div>
+    </div>
+    <div class="asec">
+      <div class="asec-t">🎨 Tema de color</div>
+      <div class="theme-selector" style="justify-content:flex-start;gap:14px;margin-bottom:4px;">
+        <button class="theme-btn t-azul" id="adm-tb-azul" onclick="setTheme('azul')" title="Azul">🔵</button>
+        <button class="theme-btn t-rosa" id="adm-tb-rosa" onclick="setTheme('rosa')" title="Rosa">🌸</button>
+        <button class="theme-btn t-pergamino" id="adm-tb-pergamino" onclick="setTheme('pergamino')" title="Pergamino">📜</button>
+      </div>
+      <div style="font-size:12px;color:var(--muted);font-weight:600;">Elige el color que más te guste</div>
+    </div>
+    <div class="asec">
+      <div class="asec-t">👤 Nombre</div>
+      <div class="name-row">
+        <input class="name-edit" id="nameEdit" type="text" maxlength="20" autocorrect="off" spellcheck="false">
+        <button class="btn-save" onclick="saveNameAdmin()">Guardar</button>
+      </div>
+    </div>
+    <div class="asec">
+      <div class="asec-t">✏️ Personalización</div>
+      <button class="btn-edit-mode" onclick="askPin('edit')">✏️ Entrar en modo edición</button>
+      <p style="font-size:12px;color:var(--muted);font-weight:600;">Edita palabras, imágenes, frases y audios de cada nivel</p>
+    </div>
+    <div class="asec">
+      <div class="asec-t">🔓 Niveles</div>
+      <div id="adminLevels"></div>
+    </div>
+    <div class="asec">
+      <div class="asec-t">📊 Estadísticas</div>
+      <div class="stats-adm" id="adminStats"></div>
+      <button class="rst" onclick="confirmReset()">🗑 Reiniciar progreso</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="imgPickerGlobal" accept="image/*" style="display:none">
+<input type="file" id="audioPicker" accept="audio/*" style="display:none">
+
+<script>
+// ============================================================
+// GITHUB BASE — change to your repo
+// ============================================================
+const GITHUB = 'https://Clauirejor.github.io/fonemas-parejas';
+
+// ============================================================
+// WORD DATABASE
+// ============================================================
+const WORDS = {
+  PA:{t1:[{w:"pato",em:"🦆",img:"PA_pato"},{w:"papá",em:"👨",img:"PA_papa"},{w:"pala",em:"🪣",img:"PA_pala"},{w:"pan",em:"🍞",img:"PA_pan"}],t2:[{w:"pata",em:"🦶",img:"PA_pata"},{w:"pasta",em:"🍝",img:"PA_pasta"},{w:"paloma",em:"🕊️",img:"PA_paloma"},{w:"pavo",em:"🦃",img:"PA_pavo"}],t3:[{w:"paraguas",em:"☂️",img:"PA_paraguas"},{w:"piscina",em:"🏊",img:"PA_piscina"},{w:"patata",em:"🥔",img:"PA_patata"},{w:"paella",em:"🥘",img:"PA_paella"}]},
+  PE:{t1:[{w:"pelo",em:"💇",img:"PE_pelo"},{w:"pera",em:"🍐",img:"PE_pera"},{w:"pez",em:"🐟",img:"PE_pez"},{w:"perro",em:"🐶",img:"PE_perro"}],t2:[{w:"pelota",em:"⚽",img:"PE_pelota"},{w:"peluche",em:"🧸",img:"PE_peluche"},{w:"pepino",em:"🥒",img:"PE_pepino"},{w:"Pep",em:"👦",img:"PE_pep"}],t3:[{w:"película",em:"🎬",img:"PE_pelicula"},{w:"peine",em:"🪮",img:"PE_peine"},{w:"peluquero",em:"✂️",img:"PE_peluquero"},{w:"pelícano",em:"🦤",img:"PE_pelicano"}]},
+  PI:{t1:[{w:"pie",em:"🦶",img:"PI_pie"},{w:"pico",em:"⛏️",img:"PI_pico"},{w:"pino",em:"🌲",img:"PI_pino"},{w:"piscina",em:"🏊",img:"PI_piscina"}],t2:[{w:"pirata",em:"🏴‍☠️",img:"PI_pirata"},{w:"piña",em:"🍍",img:"PI_pina"},{w:"pincel",em:"🖌️",img:"PI_pincel"},{w:"pijama",em:"😴",img:"PI_pijama"}],t3:[{w:"piruleta",em:"🍭",img:"PI_piruleta"},{w:"piloto",em:"✈️",img:"PI_piloto"},{w:"pingüino",em:"🐧",img:"PI_pinguino"},{w:"pila",em:"🔋",img:"PI_pila"}]},
+  PO:{t1:[{w:"polo",em:"🧊",img:"PO_polo"},{w:"pollo",em:"🍗",img:"PO_pollo"},{w:"pomo",em:"🚪",img:"PO_pomo"},{w:"poco",em:"👌",img:"PO_poco"}],t2:[{w:"policía",em:"👮",img:"PO_policia"},{w:"poney",em:"🐴",img:"PO_poney"},{w:"postre",em:"🍮",img:"PO_postre"},{w:"portero",em:"🧤",img:"PO_portero"}],t3:[{w:"pomelo",em:"🍊",img:"PO_pomelo"},{w:"polvorón",em:"🍪",img:"PO_polvoron"},{w:"polvos",em:"✨",img:"PO_polvos"},{w:"potro",em:"🐴",img:"PO_potro"}]},
+  PU:{t1:[{w:"puerta",em:"🚪",img:"PU_puerta"},{w:"pulpo",em:"🐙",img:"PU_pulpo"},{w:"puente",em:"🌉",img:"PU_puente"},{w:"puma",em:"🐆",img:"PU_puma"}],t2:[{w:"pueblo",em:"🏘️",img:"PU_pueblo"},{w:"puño",em:"✊",img:"PU_puno"},{w:"pulsera",em:"📿",img:"PU_pulsera"},{w:"pulsar",em:"🔘",img:"PU_pulsar"}],t3:[{w:"pudín",em:"🍮",img:"PU_pudin"},{w:"puchero",em:"🍲",img:"PU_puchero"},{w:"punta",em:"✏️",img:"PU_punta"},{w:"pupilo",em:"👦",img:"PU_pupilo"}]},
+  MA:{t1:[{w:"mamá",em:"👩",img:"MA_mama"},{w:"mano",em:"✋",img:"MA_mano"},{w:"mapa",em:"🗺️",img:"MA_mapa"},{w:"mariposa",em:"🦋",img:"MA_mariposa"}],t2:[{w:"manzana",em:"🍎",img:"MA_manzana"},{w:"maleta",em:"🧳",img:"MA_maleta"},{w:"macarrones",em:"🍝",img:"MA_macarrones"},{w:"mar",em:"🌊",img:"MA_mar"}],t3:[{w:"maceta",em:"🪴",img:"MA_maceta"},{w:"margarita",em:"🌼",img:"MA_margarita"},{w:"máquina",em:"⚙️",img:"MA_maquina"},{w:"mástil",em:"⛵",img:"MA_mastil"}]},
+  ME:{t1:[{w:"mesa",em:"🪑",img:"ME_mesa"},{w:"melón",em:"🍈",img:"ME_melon"},{w:"merluza",em:"🐟",img:"ME_merluza"},{w:"metro",em:"🚇",img:"ME_metro"}],t2:[{w:"medusa",em:"🪼",img:"ME_medusa"},{w:"melena",em:"💇",img:"ME_melena"},{w:"medicina",em:"💊",img:"ME_medicina"},{w:"mechero",em:"🔥",img:"ME_mechero"}],t3:[{w:"melocotón",em:"🍑",img:"ME_melocoton"},{w:"medalla",em:"🏅",img:"ME_medalla"},{w:"mercado",em:"🛒",img:"ME_mercado"},{w:"mensaje",em:"💬",img:"ME_mensaje"}]},
+  MI:{t1:[{w:"miel",em:"🍯",img:"MI_miel"},{w:"miga",em:"🍞",img:"MI_miga"},{w:"mimo",em:"🤗",img:"MI_mimo"},{w:"miedo",em:"😨",img:"MI_miedo"}],t2:[{w:"mirlo",em:"🐦",img:"MI_mirlo"},{w:"mito",em:"⚡",img:"MI_mito"},{w:"minuto",em:"⏱️",img:"MI_minuto"},{w:"misal",em:"📖",img:"MI_misal"}],t3:[{w:"microscopio",em:"🔬",img:"MI_microscopio"},{w:"ministerio",em:"🏛️",img:"MI_ministerio"},{w:"mitad",em:"½",img:"MI_mitad"},{w:"migración",em:"🚶",img:"MI_migracion"}]},
+  MO:{t1:[{w:"mono",em:"🐒",img:"MO_mono"},{w:"moto",em:"🏍️",img:"MO_moto"},{w:"moño",em:"💁",img:"MO_mono2"},{w:"moco",em:"🤧",img:"MO_moco"}],t2:[{w:"moneda",em:"🪙",img:"MO_moneda"},{w:"mochila",em:"🎒",img:"MO_mochila"},{w:"morado",em:"🟣",img:"MO_morado"},{w:"molino",em:"⚙️",img:"MO_molino"}],t3:[{w:"molusco",em:"🐚",img:"MO_molusco"},{w:"monitor",em:"🖥️",img:"MO_monitor"},{w:"montaña",em:"⛰️",img:"MO_montana"},{w:"mocasín",em:"👞",img:"MO_mocasin"}]},
+  MU:{t1:[{w:"muñeca",em:"🪆",img:"MU_muneca"},{w:"mula",em:"🫏",img:"MU_mula"},{w:"muro",em:"🧱",img:"MU_muro"},{w:"mundo",em:"🌍",img:"MU_mundo"}],t2:[{w:"murciélago",em:"🦇",img:"MU_murcielago"},{w:"músico",em:"🎵",img:"MU_musico"},{w:"muleta",em:"🩼",img:"MU_muleta"},{w:"museo",em:"🏛️",img:"MU_museo"}],t3:[{w:"muralla",em:"🏯",img:"MU_muralla"},{w:"mustang",em:"🐴",img:"MU_mustang"},{w:"municipal",em:"🏙️",img:"MU_municipal"},{w:"muslo",em:"🍗",img:"MU_muslo"}]},
+  BA:{t1:[{w:"bata",em:"🥼",img:"BA_bata"},{w:"barco",em:"🚢",img:"BA_barco"},{w:"banco",em:"🏦",img:"BA_banco"},{w:"bañera",em:"🛁",img:"BA_banera"}],t2:[{w:"bailar",em:"💃",img:"BA_bailar"},{w:"banana",em:"🍌",img:"BA_banana"},{w:"balón",em:"⚽",img:"BA_balon"},{w:"barba",em:"🧔",img:"BA_barba"}],t3:[{w:"balcón",em:"🏠",img:"BA_balcon"},{w:"bastón",em:"🪄",img:"BA_baston"},{w:"batalla",em:"⚔️",img:"BA_batalla"},{w:"bacalao",em:"🐟",img:"BA_bacalao"}]},
+  BE:{t1:[{w:"beso",em:"😘",img:"BE_beso"},{w:"bebé",em:"👶",img:"BE_bebe"},{w:"Bea",em:"👧",img:"BE_bea"},{w:"bello",em:"✨",img:"BE_bello"}],t2:[{w:"berenjena",em:"🍆",img:"BE_berenjena"},{w:"berro",em:"🌿",img:"BE_berro"},{w:"bestia",em:"🐻",img:"BE_bestia"},{w:"betún",em:"👞",img:"BE_betun"}],t3:[{w:"beneficio",em:"💰",img:"BE_beneficio"},{w:"besugo",em:"🐟",img:"BE_besugo"},{w:"belén",em:"⭐",img:"BE_belen"},{w:"bellota",em:"🌰",img:"BE_bellota"}]},
+  BI:{t1:[{w:"bici",em:"🚲",img:"BI_bici"},{w:"bien",em:"👍",img:"BI_bien"},{w:"bicho",em:"🐛",img:"BI_bicho"},{w:"bingo",em:"🎱",img:"BI_bingo"}],t2:[{w:"bigote",em:"👨",img:"BI_bigote"},{w:"billete",em:"🎫",img:"BI_billete"},{w:"bisonte",em:"🦬",img:"BI_bisonte"},{w:"bisabuela",em:"👵",img:"BI_bisabuela"}],t3:[{w:"biblioteca",em:"📚",img:"BI_biblioteca"},{w:"binoculares",em:"🔭",img:"BI_binoculares"},{w:"bizcocho",em:"🍰",img:"BI_bizcocho"},{w:"bistec",em:"🥩",img:"BI_bistec"}]},
+  BO:{t1:[{w:"bola",em:"⚽",img:"BO_bola"},{w:"bota",em:"👢",img:"BO_bota"},{w:"boca",em:"👄",img:"BO_boca"},{w:"bolso",em:"👜",img:"BO_bolso"}],t2:[{w:"bosque",em:"🌲",img:"BO_bosque"},{w:"botella",em:"🍶",img:"BO_botella"},{w:"borrego",em:"🐑",img:"BO_borrego"},{w:"bolígrafo",em:"✒️",img:"BO_boligrafo"}],t3:[{w:"bombero",em:"🚒",img:"BO_bombero"},{w:"boxeador",em:"🥊",img:"BO_boxeador"},{w:"bocadillo",em:"🥖",img:"BO_bocadillo"},{w:"bonsái",em:"🌿",img:"BO_bonsai"}]},
+  BU:{t1:[{w:"burro",em:"🫏",img:"BU_burro"},{w:"búho",em:"🦉",img:"BU_buho"},{w:"bueno",em:"🌟",img:"BU_bueno"},{w:"buque",em:"🚢",img:"BU_buque"}],t2:[{w:"bufanda",em:"🧣",img:"BU_bufanda"},{w:"buzón",em:"📬",img:"BU_buzon"},{w:"burbuja",em:"🫧",img:"BU_burbuja"},{w:"búfalo",em:"🦬",img:"BU_bufalo"}],t3:[{w:"buñuelo",em:"🍩",img:"BU_bunuelo"},{w:"butaca",em:"🛋️",img:"BU_butaca"},{w:"buitre",em:"🦅",img:"BU_buitre"},{w:"bulldog",em:"🐶",img:"BU_bulldog"}]},
+  ZA:{t1:[{w:"zapato",em:"👟",img:"ZA_zapato"},{w:"zanja",em:"⛏️",img:"ZA_zanja"},{w:"zanahoria",em:"🥕",img:"ZA_zanahoria"},{w:"zarpa",em:"🐾",img:"ZA_zarpa"}],t2:[{w:"zapatilla",em:"👟",img:"ZA_zapatilla"},{w:"zafiro",em:"💎",img:"ZA_zafiro"},{w:"zambullir",em:"🏊",img:"ZA_zambullir"},{w:"zampón",em:"🍔",img:"ZA_zampon"}],t3:[{w:"zarpazo",em:"🐆",img:"ZA_zarpazo"},{w:"zarcillo",em:"💧",img:"ZA_zarcillo"},{w:"zarigüeya",em:"🐾",img:"ZA_zarigueya"},{w:"zancudo",em:"🦟",img:"ZA_zancudo"}]},
+  CE:{t1:[{w:"cena",em:"🍽️",img:"CE_cena"},{w:"cerdo",em:"🐷",img:"CE_cerdo"},{w:"Celia",em:"👧",img:"CE_celia"},{w:"cien",em:"💯",img:"CE_cien"}],t2:[{w:"cereal",em:"🌾",img:"CE_cereal"},{w:"cerebro",em:"🧠",img:"CE_cerebro"},{w:"cereza",em:"🍒",img:"CE_cereza"},{w:"cebolla",em:"🧅",img:"CE_cebolla"}],t3:[{w:"celular",em:"📱",img:"CE_celular"},{w:"cerámica",em:"🏺",img:"CE_ceramica"},{w:"centollo",em:"🦀",img:"CE_centollo"},{w:"cedro",em:"🌲",img:"CE_cedro"}]},
+  CI:{t1:[{w:"cielo",em:"☁️",img:"CI_cielo"},{w:"cisne",em:"🦢",img:"CI_cisne"},{w:"cien",em:"💯",img:"CI_cien"},{w:"cine",em:"🎬",img:"CI_cine"}],t2:[{w:"circo",em:"🎪",img:"CI_circo"},{w:"cigüeña",em:"🦢",img:"CI_ciguena"},{w:"ciruela",em:"🫐",img:"CI_ciruela"},{w:"ciervo",em:"🦌",img:"CI_ciervo"}],t3:[{w:"científico",em:"🔬",img:"CI_cientifico"},{w:"ciempiés",em:"🐛",img:"CI_ciempies"},{w:"cilindro",em:"🥫",img:"CI_cilindro"},{w:"ciclón",em:"🌀",img:"CI_ciclon"}]},
+  ZO:{t1:[{w:"zoo",em:"🦁",img:"ZO_zoo"},{w:"zorro",em:"🦊",img:"ZO_zorro"},{w:"zona",em:"🗺️",img:"ZO_zona"},{w:"zombi",em:"🧟",img:"ZO_zombi"}],t2:[{w:"zoológico",em:"🐘",img:"ZO_zoologico"},{w:"zorzal",em:"🐦",img:"ZO_zorzal"},{w:"zopilote",em:"🦅",img:"ZO_zopilote"},{w:"zodíaco",em:"⭐",img:"ZO_zodiaco"}],t3:[{w:"zoquete",em:"🧦",img:"ZO_zoquete"},{w:"zorrito",em:"🦊",img:"ZO_zorrito"},{w:"zozobra",em:"🌊",img:"ZO_zozobra"},{w:"zonzo",em:"😅",img:"ZO_zonzo"}]},
+  ZU:{t1:[{w:"zumo",em:"🧃",img:"ZU_zumo"},{w:"zurdo",em:"🤚",img:"ZU_zurdo"},{w:"zumba",em:"💃",img:"ZU_zumba"},{w:"zumbido",em:"🐝",img:"ZU_zumbido"}],t2:[{w:"zurrón",em:"👜",img:"ZU_zurron"},{w:"zurcir",em:"🧵",img:"ZU_zurcir"},{w:"zuncho",em:"🔩",img:"ZU_zuncho"},{w:"zurita",em:"🕊️",img:"ZU_zurita"}],t3:[{w:"zumaque",em:"🌿",img:"ZU_zumaque"},{w:"zurdazo",em:"✊",img:"ZU_zurdazo"},{w:"zueco",em:"👟",img:"ZU_zueco"},{w:"zulos",em:"🏠",img:"ZU_zulos"}]},
+  SA:{t1:[{w:"Sara",em:"👧",img:"SA_sara"},{w:"sapo",em:"🐸",img:"SA_sapo"},{w:"saltar",em:"🏃",img:"SA_saltar"},{w:"sandía",em:"🍉",img:"SA_sandia"}],t2:[{w:"salmón",em:"🐟",img:"SA_salmon"},{w:"sandalia",em:"👡",img:"SA_sandalia"},{w:"sartén",em:"🍳",img:"SA_sarten"},{w:"saco",em:"🎒",img:"SA_saco"}],t3:[{w:"salamandra",em:"🦎",img:"SA_salamandra"},{w:"satélite",em:"🛸",img:"SA_satelite"},{w:"saxofón",em:"🎷",img:"SA_saxofon"},{w:"salpicón",em:"🥗",img:"SA_salpicon"}]},
+  SE:{t1:[{w:"seta",em:"🍄",img:"SE_seta"},{w:"sello",em:"📮",img:"SE_sello"},{w:"seda",em:"🪡",img:"SE_seda"},{w:"seis",em:"6️⃣",img:"SE_seis"}],t2:[{w:"semilla",em:"🌱",img:"SE_semilla"},{w:"serpiente",em:"🐍",img:"SE_serpiente"},{w:"semáforo",em:"🚦",img:"SE_semaforo"},{w:"servilleta",em:"🍽️",img:"SE_servilleta"}],t3:[{w:"secreto",em:"🤫",img:"SE_secreto"},{w:"selva",em:"🌿",img:"SE_selva"},{w:"senado",em:"🏛️",img:"SE_senado"},{w:"señuelo",em:"🎣",img:"SE_senuelo"}]},
+  SI:{t1:[{w:"silla",em:"🪑",img:"SI_silla"},{w:"sirena",em:"🧜",img:"SI_sirena"},{w:"silo",em:"🏗️",img:"SI_silo"},{w:"silbar",em:"🎵",img:"SI_silbar"}],t2:[{w:"sillón",em:"🛋️",img:"SI_sillon"},{w:"sinfonía",em:"🎻",img:"SI_sinfonia"},{w:"silueta",em:"🖼️",img:"SI_silueta"},{w:"signo",em:"🔣",img:"SI_signo"}],t3:[{w:"símbolo",em:"🔣",img:"SI_simbolo"},{w:"simulacro",em:"🎭",img:"SI_simulacro"},{w:"sinapsis",em:"🧠",img:"SI_sinapsis"},{w:"sifón",em:"🫧",img:"SI_sifon"}]},
+  SO:{t1:[{w:"sopa",em:"🍲",img:"SO_sopa"},{w:"sol",em:"☀️",img:"SO_sol"},{w:"sola",em:"🧍",img:"SO_sola"},{w:"sobre",em:"✉️",img:"SO_sobre"}],t2:[{w:"sofá",em:"🛋️",img:"SO_sofa"},{w:"sombrero",em:"🎩",img:"SO_sombrero"},{w:"sonrisa",em:"😊",img:"SO_sonrisa"},{w:"sortija",em:"💍",img:"SO_sortija"}],t3:[{w:"solidaridad",em:"🤝",img:"SO_solidaridad"},{w:"solsticio",em:"🌞",img:"SO_solsticio"},{w:"sopetón",em:"🍞",img:"SO_sopetn"},{w:"sordina",em:"🎵",img:"SO_sordina"}]},
+  SU:{t1:[{w:"suelo",em:"🏠",img:"SU_suelo"},{w:"susto",em:"😱",img:"SU_susto"},{w:"suma",em:"➕",img:"SU_suma"},{w:"suela",em:"👟",img:"SU_suela"}],t2:[{w:"submarino",em:"🤿",img:"SU_submarino"},{w:"sudadera",em:"👕",img:"SU_sudadera"},{w:"sultán",em:"👑",img:"SU_sultan"},{w:"suegra",em:"👩",img:"SU_suegra"}],t3:[{w:"sufragio",em:"🗳️",img:"SU_sufragio"},{w:"surtidor",em:"⛽",img:"SU_surtidor"},{w:"suculento",em:"🌵",img:"SU_suculento"},{w:"susurro",em:"🤫",img:"SU_susurro"}]},
+  SF:{t1:[{w:"más",em:"➕",img:"SF_mas"},{w:"mes",em:"📅",img:"SF_mes"},{w:"tos",em:"🤧",img:"SF_tos"},{w:"iris",em:"🌈",img:"SF_iris"}],t2:[{w:"isla",em:"🏝️",img:"SF_isla"},{w:"autobús",em:"🚌",img:"SF_autobus"},{w:"árbol",em:"🌳",img:"SF_arbol"},{w:"Isabela",em:"👧",img:"SF_isabela"}],t3:[{w:"lunes",em:"📅",img:"SF_lunes"},{w:"nariz",em:"👃",img:"SF_nariz"},{w:"espada",em:"⚔️",img:"SF_espada"},{w:"maíz",em:"🌽",img:"SF_maiz"}]},
+  FA:{t1:[{w:"faro",em:"🏮",img:"FA_faro"},{w:"familia",em:"👨‍👩‍👧",img:"FA_familia"},{w:"feria",em:"🎡",img:"FA_feria"},{w:"fama",em:"⭐",img:"FA_fama"}],t2:[{w:"fantasma",em:"👻",img:"FA_fantasma"},{w:"farmacia",em:"💊",img:"FA_farmacia"},{w:"falda",em:"👗",img:"FA_falda"},{w:"fábrica",em:"🏭",img:"FA_fabrica"}],t3:[{w:"faraón",em:"👑",img:"FA_faraon"},{w:"fanfarrón",em:"😤",img:"FA_fanfarron"},{w:"fandango",em:"💃",img:"FA_fandango"},{w:"fascinante",em:"✨",img:"FA_fascinante"}]},
+  FE:{t1:[{w:"Felipe",em:"👦",img:"FE_felipe"},{w:"feo",em:"😬",img:"FE_feo"},{w:"fecha",em:"📅",img:"FE_fecha"},{w:"feliz",em:"😊",img:"FE_feliz"}],t2:[{w:"festival",em:"🎪",img:"FE_festival"},{w:"ferrocarril",em:"🚂",img:"FE_ferrocarril"},{w:"fenómeno",em:"✨",img:"FE_fenomeno"},{w:"fetiche",em:"🪆",img:"FE_fetiche"}],t3:[{w:"fertilizante",em:"🌱",img:"FE_fertilizante"},{w:"feudalismo",em:"🏰",img:"FE_feudalismo"},{w:"fermentado",em:"🍺",img:"FE_fermentado"},{w:"felpudo",em:"🏠",img:"FE_felpudo"}]},
+  FI:{t1:[{w:"finca",em:"🏡",img:"FI_finca"},{w:"fila",em:"👥",img:"FI_fila"},{w:"fideo",em:"🍜",img:"FI_fideo"},{w:"fiesta",em:"🎉",img:"FI_fiesta"}],t2:[{w:"figura",em:"🎭",img:"FI_figura"},{w:"filtro",em:"🔍",img:"FI_filtro"},{w:"finura",em:"✨",img:"FI_finura"},{w:"filosofía",em:"🤔",img:"FI_filosofia"}],t3:[{w:"filósofo",em:"🧠",img:"FI_filosofo"},{w:"financiero",em:"💰",img:"FI_financiero"},{w:"filamento",em:"💡",img:"FI_filamento"},{w:"fisonomía",em:"👤",img:"FI_fisonomia"}]},
+  FO:{t1:[{w:"foto",em:"📷",img:"FO_foto"},{w:"foca",em:"🦭",img:"FO_foca"},{w:"fondo",em:"🌊",img:"FO_fondo"},{w:"fogón",em:"🔥",img:"FO_fogon"}],t2:[{w:"follaje",em:"🌿",img:"FO_follaje"},{w:"forestal",em:"🌲",img:"FO_forestal"},{w:"folklore",em:"🎭",img:"FO_folklore"},{w:"fortuna",em:"🍀",img:"FO_fortuna"}],t3:[{w:"fotografía",em:"📸",img:"FO_fotografia"},{w:"fonética",em:"🗣️",img:"FO_fonetica"},{w:"formulario",em:"📝",img:"FO_formulario"},{w:"fósforo",em:"🔥",img:"FO_fosforo"}]},
+  FU:{t1:[{w:"fútbol",em:"⚽",img:"FU_futbol"},{w:"fuerza",em:"💪",img:"FU_fuerza"},{w:"fuego",em:"🔥",img:"FU_fuego"},{w:"fuente",em:"⛲",img:"FU_fuente"}],t2:[{w:"futuro",em:"🔮",img:"FU_futuro"},{w:"furioso",em:"😤",img:"FU_furioso"},{w:"furgón",em:"🚌",img:"FU_furgon"},{w:"función",em:"🎭",img:"FU_funcion"}],t3:[{w:"fundamento",em:"🏗️",img:"FU_fundamento"},{w:"fusible",em:"⚡",img:"FU_fusible"},{w:"fugitivo",em:"🏃",img:"FU_fugitivo"},{w:"futurista",em:"🤖",img:"FU_futurista"}]},
+  NA:{t1:[{w:"Nora",em:"👧",img:"NA_nora"},{w:"nariz",em:"👃",img:"NA_nariz"},{w:"naranja",em:"🍊",img:"NA_naranja"},{w:"nada",em:"🏊",img:"NA_nada"}],t2:[{w:"natación",em:"🏊",img:"NA_natacion"},{w:"navidad",em:"🎄",img:"NA_navidad"},{w:"naturaleza",em:"🌿",img:"NA_naturaleza"},{w:"nata",em:"🥛",img:"NA_nata"}],t3:[{w:"narciso",em:"🌼",img:"NA_narciso"},{w:"navegante",em:"⛵",img:"NA_navegante"},{w:"narrativa",em:"📚",img:"NA_narrativa"},{w:"nación",em:"🌍",img:"NA_nacion"}]},
+  NE:{t1:[{w:"nena",em:"👧",img:"NE_nena"},{w:"nieve",em:"❄️",img:"NE_nieve"},{w:"negro",em:"⬛",img:"NE_negro"},{w:"néctar",em:"🍯",img:"NE_nectar"}],t2:[{w:"nebulosa",em:"🌌",img:"NE_nebulosa"},{w:"nervio",em:"⚡",img:"NE_nervio"},{w:"neptuno",em:"🔵",img:"NE_neptuno"},{w:"negocio",em:"💼",img:"NE_negocio"}],t3:[{w:"neurología",em:"🧠",img:"NE_neurologia"},{w:"necesario",em:"✅",img:"NE_necesario"},{w:"néctar",em:"🍯",img:"NE_nectar2"},{w:"negligente",em:"😴",img:"NE_negligente"}]},
+  NI:{t1:[{w:"niño",em:"👦",img:"NI_nino"},{w:"nido",em:"🐣",img:"NI_nido"},{w:"nivel",em:"📊",img:"NI_nivel"},{w:"niebla",em:"🌫️",img:"NI_niebla"}],t2:[{w:"ninfa",em:"🧚",img:"NI_ninfa"},{w:"nítido",em:"✨",img:"NI_nitido"},{w:"niña",em:"👧",img:"NI_nina"},{w:"niqui",em:"👕",img:"NI_niqui"}],t3:[{w:"nitrógeno",em:"⚗️",img:"NI_nitrogeno"},{w:"nivelación",em:"⚖️",img:"NI_nivelacion"},{w:"niquelar",em:"🔩",img:"NI_niquelar"},{w:"nihilismo",em:"🤔",img:"NI_nihilismo"}]},
+  NO:{t1:[{w:"noche",em:"🌙",img:"NO_noche"},{w:"nota",em:"🎵",img:"NO_nota"},{w:"noria",em:"🎡",img:"NO_noria"},{w:"norte",em:"🧭",img:"NO_norte"}],t2:[{w:"nogal",em:"🌳",img:"NO_nogal"},{w:"novela",em:"📚",img:"NO_novela"},{w:"noticias",em:"📰",img:"NO_noticias"},{w:"nomina",em:"📄",img:"NO_nomina"}],t3:[{w:"novedoso",em:"✨",img:"NO_novedoso"},{w:"noviembre",em:"📅",img:"NO_noviembre"},{w:"nocturnidad",em:"🌙",img:"NO_nocturnidad"},{w:"nomenclatura",em:"📋",img:"NO_nomenclatura"}]},
+  NU:{t1:[{w:"nube",em:"☁️",img:"NU_nube"},{w:"nuez",em:"🥜",img:"NU_nuez"},{w:"número",em:"🔢",img:"NU_numero"},{w:"nudo",em:"🪢",img:"NU_nudo"}],t2:[{w:"nutrición",em:"🥗",img:"NU_nutricion"},{w:"nuca",em:"💆",img:"NU_nuca"},{w:"nutria",em:"🦦",img:"NU_nutria"},{w:"nuclear",em:"⚛️",img:"NU_nuclear"}],t3:[{w:"nupcias",em:"💒",img:"NU_nupcias"},{w:"nutriente",em:"💊",img:"NU_nutriente"},{w:"nulidad",em:"❌",img:"NU_nulidad"},{w:"numismática",em:"🪙",img:"NU_numismatica"}]},
+  LA:{t1:[{w:"lago",em:"🏞️",img:"LA_lago"},{w:"lata",em:"🥫",img:"LA_lata"},{w:"lana",em:"🧶",img:"LA_lana"},{w:"labio",em:"👄",img:"LA_labio"}],t2:[{w:"lagarto",em:"🦎",img:"LA_lagarto"},{w:"lámpara",em:"💡",img:"LA_lampara"},{w:"lateral",em:"↔️",img:"LA_lateral"},{w:"laberinto",em:"🌀",img:"LA_laberinto"}],t3:[{w:"laboratorio",em:"🧪",img:"LA_laboratorio"},{w:"lavanda",em:"💜",img:"LA_lavanda"},{w:"latifundio",em:"🌾",img:"LA_latifundio"},{w:"lápiz",em:"✏️",img:"LA_lapiz"}]},
+  LE:{t1:[{w:"leche",em:"🥛",img:"LE_leche"},{w:"leer",em:"📖",img:"LE_leer"},{w:"leona",em:"🦁",img:"LE_leona"},{w:"lema",em:"📣",img:"LE_lema"}],t2:[{w:"lechuga",em:"🥬",img:"LE_lechuga"},{w:"lenteja",em:"🫘",img:"LE_lenteja"},{w:"leopardo",em:"🐆",img:"LE_leopardo"},{w:"leyenda",em:"📖",img:"LE_leyenda"}],t3:[{w:"legalidad",em:"⚖️",img:"LE_legalidad"},{w:"lencería",em:"👗",img:"LE_lenceria"},{w:"levitación",em:"✨",img:"LE_levitacion"},{w:"lengua",em:"👅",img:"LE_lengua"}]},
+  LI:{t1:[{w:"limón",em:"🍋",img:"LI_limon"},{w:"libro",em:"📚",img:"LI_libro"},{w:"listo",em:"✅",img:"LI_listo"},{w:"lirio",em:"🌸",img:"LI_lirio"}],t2:[{w:"linterna",em:"🔦",img:"LI_linterna"},{w:"libélula",em:"🪲",img:"LI_libelula"},{w:"limonada",em:"🍋",img:"LI_limonada"},{w:"pincel",em:"🖌️",img:"LI_pincel"}],t3:[{w:"libertad",em:"🗽",img:"LI_libertad"},{w:"licencia",em:"📄",img:"LI_licencia"},{w:"liquidez",em:"💧",img:"LI_liquidez"},{w:"litografía",em:"🖼️",img:"LI_litografia"}]},
+  LO:{t1:[{w:"loro",em:"🦜",img:"LO_loro"},{w:"loto",em:"🌸",img:"LO_loto"},{w:"lobo",em:"🐺",img:"LO_lobo"},{w:"lona",em:"⛺",img:"LO_lona"}],t2:[{w:"locomotora",em:"🚂",img:"LO_locomotora"},{w:"loseta",em:"🧱",img:"LO_loseta"},{w:"loma",em:"⛰️",img:"LO_loma"},{w:"longitud",em:"📏",img:"LO_longitud"}],t3:[{w:"logaritmo",em:"📐",img:"LO_logaritmo"},{w:"logística",em:"📦",img:"LO_logistica"},{w:"locución",em:"🗣️",img:"LO_locucion"},{w:"longevo",em:"👴",img:"LO_longevo"}]},
+  LU:{t1:[{w:"luna",em:"🌙",img:"LU_luna"},{w:"lucha",em:"🤼",img:"LU_lucha"},{w:"luce",em:"✨",img:"LU_luce"},{w:"lujo",em:"💎",img:"LU_lujo"}],t2:[{w:"luminoso",em:"💡",img:"LU_luminoso"},{w:"lucero",em:"⭐",img:"LU_lucero"},{w:"lunar",em:"🌑",img:"LU_lunar"},{w:"lubricante",em:"⚙️",img:"LU_lubricante"}],t3:[{w:"luminiscencia",em:"✨",img:"LU_luminiscencia"},{w:"lucidez",em:"🧠",img:"LU_lucidez"},{w:"lúgubre",em:"🪦",img:"LU_lugubre"},{w:"lustre",em:"✨",img:"LU_lustre"}]},
+  RA:{t1:[{w:"rana",em:"🐸",img:"RA_rana"},{w:"Rori",em:"👦",img:"RA_rori"},{w:"ramo",em:"💐",img:"RA_ramo"},{w:"rama",em:"🌿",img:"RA_rama"}],t2:[{w:"ratón",em:"🐭",img:"RA_raton"},{w:"rápido",em:"⚡",img:"RA_rapido"},{w:"raqueta",em:"🎾",img:"RA_raqueta"},{w:"radio",em:"📻",img:"RA_radio"}],t3:[{w:"rascacielos",em:"🏙️",img:"RA_rascacielos"},{w:"ravioles",em:"🍝",img:"RA_ravioles"},{w:"radiografía",em:"🩻",img:"RA_radiografia"},{w:"raro",em:"🤔",img:"RA_raro"}]},
+  RE:{t1:[{w:"reja",em:"🪟",img:"RE_reja"},{w:"reloj",em:"⏰",img:"RE_reloj"},{w:"remo",em:"🚣",img:"RE_remo"},{w:"red",em:"🕸️",img:"RE_red"}],t2:[{w:"regalo",em:"🎁",img:"RE_regalo"},{w:"reptil",em:"🦎",img:"RE_reptil"},{w:"refresco",em:"🥤",img:"RE_refresco"},{w:"reclamo",em:"📣",img:"RE_reclamo"}],t3:[{w:"renacuajo",em:"🐸",img:"RE_renacuajo"},{w:"reducción",em:"📉",img:"RE_reduccion"},{w:"religioso",em:"⛪",img:"RE_religioso"},{w:"recíproco",em:"↔️",img:"RE_reciproco"}]},
+  RI:{t1:[{w:"río",em:"🏞️",img:"RI_rio"},{w:"risa",em:"😂",img:"RI_risa"},{w:"rico",em:"😋",img:"RI_rico"},{w:"rizo",em:"💇",img:"RI_rizo"}],t2:[{w:"rinoceronte",em:"🦏",img:"RI_rinoceronte"},{w:"ritual",em:"🕯️",img:"RI_ritual"},{w:"ridículo",em:"😂",img:"RI_ridiculo"},{w:"rincón",em:"📐",img:"RI_rincon"}],t3:[{w:"rítmico",em:"🎵",img:"RI_ritmico"},{w:"riñón",em:"🫘",img:"RI_rinon"},{w:"rivalidad",em:"⚔️",img:"RI_rivalidad"},{w:"riguroso",em:"✅",img:"RI_riguroso"}]},
+  RO:{t1:[{w:"rosa",em:"🌹",img:"RO_rosa"},{w:"rojo",em:"🔴",img:"RO_rojo"},{w:"roca",em:"🪨",img:"RO_roca"},{w:"robot",em:"🤖",img:"RO_robot"}],t2:[{w:"romero",em:"🌿",img:"RO_romero"},{w:"romance",em:"💕",img:"RO_romance"},{w:"rodilla",em:"🦵",img:"RO_rodilla"},{w:"rotura",em:"💥",img:"RO_rotura"}],t3:[{w:"romanticismo",em:"💖",img:"RO_romanticismo"},{w:"rotación",em:"🔄",img:"RO_rotacion"},{w:"robustez",em:"💪",img:"RO_robustez"},{w:"rodapié",em:"🏠",img:"RO_rodapie"}]},
+  RU:{t1:[{w:"rueda",em:"🔵",img:"RU_rueda"},{w:"ruta",em:"🗺️",img:"RU_ruta"},{w:"rugido",em:"🦁",img:"RU_rugido"},{w:"ruido",em:"🔊",img:"RU_ruido"}],t2:[{w:"ruleta",em:"🎰",img:"RU_ruleta"},{w:"rutina",em:"📅",img:"RU_rutina"},{w:"ruptura",em:"💥",img:"RU_ruptura"},{w:"rumor",em:"💬",img:"RU_rumor"}],t3:[{w:"rudimentario",em:"🔧",img:"RU_rudimentario"},{w:"rugoso",em:"🪨",img:"RU_rugoso"},{w:"rústico",em:"🏡",img:"RU_rustico"},{w:"rumiar",em:"🐄",img:"RU_rumiar"}]},
+  RRA:{t1:[{w:"rata",em:"🐀",img:"RRA_rata"},{w:"rápida",em:"⚡",img:"RRA_rapida"},{w:"rama",em:"🌿",img:"RRA_rama"},{w:"rabia",em:"😡",img:"RRA_rabia"}],t2:[{w:"raqueta",em:"🎾",img:"RRA_raqueta"},{w:"ratero",em:"🐭",img:"RRA_ratero"},{w:"rastro",em:"🐾",img:"RRA_rastro"},{w:"radiante",em:"☀️",img:"RRA_radiante"}],t3:[{w:"rascacielos",em:"🏙️",img:"RRA_rascacielos"},{w:"rapsodia",em:"🎵",img:"RRA_rapsodia"},{w:"rastrear",em:"🔍",img:"RRA_rastrear"},{w:"ramificación",em:"🌿",img:"RRA_ramificacion"}]},
+  RRE:{t1:[{w:"reja",em:"🪟",img:"RRE_reja"},{w:"remo",em:"🚣",img:"RRE_remo"},{w:"red",em:"🕸️",img:"RRE_red"},{w:"reto",em:"🎯",img:"RRE_reto"}],t2:[{w:"remolino",em:"🌀",img:"RRE_remolino"},{w:"reptil",em:"🦎",img:"RRE_reptil"},{w:"resorte",em:"🪛",img:"RRE_resorte"},{w:"reparto",em:"📦",img:"RRE_reparto"}],t3:[{w:"reciclaje",em:"♻️",img:"RRE_reciclaje"},{w:"retórica",em:"🗣️",img:"RRE_retorica"},{w:"relevo",em:"🏃",img:"RRE_relevo"},{w:"rechazo",em:"❌",img:"RRE_rechazo"}]},
+  RRI:{t1:[{w:"río",em:"🏞️",img:"RRI_rio"},{w:"risa",em:"😂",img:"RRI_risa"},{w:"rizo",em:"💇",img:"RRI_rizo"},{w:"ritmo",em:"🎵",img:"RRI_ritmo"}],t2:[{w:"rinoceronte",em:"🦏",img:"RRI_rinoceronte"},{w:"ridículo",em:"😂",img:"RRI_ridiculo"},{w:"ritual",em:"🕯️",img:"RRI_ritual"},{w:"rincón",em:"📐",img:"RRI_rincon"}],t3:[{w:"riñón",em:"🫘",img:"RRI_rinon"},{w:"rítmico",em:"🎵",img:"RRI_ritmico"},{w:"rivalidad",em:"⚔️",img:"RRI_rivalidad"},{w:"rigidez",em:"🪨",img:"RRI_rigidez"}]},
+  RRO:{t1:[{w:"rojo",em:"🔴",img:"RRO_rojo"},{w:"roca",em:"🪨",img:"RRO_roca"},{w:"ropa",em:"👕",img:"RRO_ropa"},{w:"robot",em:"🤖",img:"RRO_robot"}],t2:[{w:"romero",em:"🌿",img:"RRO_romero"},{w:"romance",em:"💕",img:"RRO_romance"},{w:"rodilla",em:"🦵",img:"RRO_rodilla"},{w:"rotura",em:"💥",img:"RRO_rotura"}],t3:[{w:"rotación",em:"🔄",img:"RRO_rotacion"},{w:"robustez",em:"💪",img:"RRO_robustez"},{w:"rodapié",em:"🏠",img:"RRO_rodapie"},{w:"romanticismo",em:"💖",img:"RRO_romanticismo"}]},
+  RRU:{t1:[{w:"rueda",em:"🔵",img:"RRU_rueda"},{w:"ruta",em:"🗺️",img:"RRU_ruta"},{w:"rugido",em:"🦁",img:"RRU_rugido"},{w:"ruido",em:"🔊",img:"RRU_ruido"}],t2:[{w:"ruleta",em:"🎰",img:"RRU_ruleta"},{w:"rutina",em:"📅",img:"RRU_rutina"},{w:"ruptura",em:"💥",img:"RRU_ruptura"},{w:"rumor",em:"💬",img:"RRU_rumor"}],t3:[{w:"rudimentario",em:"🔧",img:"RRU_rudimentario"},{w:"rugoso",em:"🪨",img:"RRU_rugoso"},{w:"rústico",em:"🏡",img:"RRU_rustico"},{w:"rumiar",em:"🐄",img:"RRU_rumiar"}]},
+  TA:{t1:[{w:"taza",em:"☕",img:"TA_taza"},{w:"tarta",em:"🎂",img:"TA_tarta"},{w:"toman",em:"🍽️",img:"TA_toman"},{w:"martes",em:"📅",img:"TA_martes"}],t2:[{w:"tambor",em:"🥁",img:"TA_tambor"},{w:"taburete",em:"🪑",img:"TA_taburete"},{w:"talento",em:"⭐",img:"TA_talento"},{w:"tabla",em:"📋",img:"TA_tabla"}],t3:[{w:"tacón",em:"👠",img:"TA_tacon"},{w:"tartamudeo",em:"💬",img:"TA_tartamudeo"},{w:"taxonomía",em:"📊",img:"TA_taxonomia"},{w:"taladro",em:"🔨",img:"TA_taladro"}]},
+  TE:{t1:[{w:"Tere",em:"👧",img:"TE_tere"},{w:"tela",em:"🧵",img:"TE_tela"},{w:"tenis",em:"🎾",img:"TE_tenis"},{w:"techo",em:"🏠",img:"TE_techo"}],t2:[{w:"televisión",em:"📺",img:"TE_television"},{w:"teléfono",em:"📱",img:"TE_telefono"},{w:"termómetro",em:"🌡️",img:"TE_termometro"},{w:"terreno",em:"🌍",img:"TE_terreno"}],t3:[{w:"tecnología",em:"💻",img:"TE_tecnologia"},{w:"telescopio",em:"🔭",img:"TE_telescopio"},{w:"terremoto",em:"🌋",img:"TE_terremoto"},{w:"terapia",em:"🩺",img:"TE_terapia"}]},
+  TI:{t1:[{w:"tigre",em:"🐯",img:"TI_tigre"},{w:"tijeras",em:"✂️",img:"TI_tijeras"},{w:"tierra",em:"🌍",img:"TI_tierra"},{w:"tiburón",em:"🦈",img:"TI_tiburon"}],t2:[{w:"tintero",em:"🖊️",img:"TI_tintero"},{w:"timbre",em:"🔔",img:"TI_timbre"},{w:"tinaja",em:"🪣",img:"TI_tinaja"},{w:"título",em:"📜",img:"TI_titulo"}],t3:[{w:"titánico",em:"🚢",img:"TI_titanico"},{w:"tifón",em:"🌀",img:"TI_tifon"},{w:"tiranía",em:"👑",img:"TI_tirania"},{w:"titubear",em:"😕",img:"TI_titubear"}]},
+  TO:{t1:[{w:"toro",em:"🐂",img:"TO_toro"},{w:"topo",em:"🦔",img:"TO_topo"},{w:"tomate",em:"🍅",img:"TO_tomate"},{w:"toma",em:"🔌",img:"TO_toma"}],t2:[{w:"tormenta",em:"⛈️",img:"TO_tormenta"},{w:"tortuga",em:"🐢",img:"TO_tortuga"},{w:"topacio",em:"💎",img:"TO_topacio"},{w:"torpedo",em:"💣",img:"TO_torpedo"}],t3:[{w:"torbellino",em:"🌀",img:"TO_torbellino"},{w:"toledano",em:"⚔️",img:"TO_toledano"},{w:"totalitarismo",em:"🏛️",img:"TO_totalitarismo"},{w:"tormentoso",em:"⛈️",img:"TO_tormentoso"}]},
+  TU:{t1:[{w:"tubo",em:"🪣",img:"TU_tubo"},{w:"tulipán",em:"🌷",img:"TU_tulipan"},{w:"túnel",em:"🚇",img:"TU_tunel"},{w:"tucán",em:"🐦",img:"TU_tucan"}],t2:[{w:"turista",em:"🧳",img:"TU_turista"},{w:"turbulencia",em:"✈️",img:"TU_turbulencia"},{w:"tutela",em:"🛡️",img:"TU_tutela"},{w:"turbina",em:"⚙️",img:"TU_turbina"}],t3:[{w:"turquesa",em:"💎",img:"TU_turquesa"},{w:"tumulto",em:"👥",img:"TU_tumulto"},{w:"tutú",em:"🩰",img:"TU_tutu"},{w:"tuétano",em:"🦴",img:"TU_tuetano"}]},
+  CHA:{t1:[{w:"Charo",em:"👩",img:"CHA_charo"},{w:"charco",em:"💧",img:"CHA_charco"},{w:"chapa",em:"🔩",img:"CHA_chapa"},{w:"chaleco",em:"🦺",img:"CHA_chaleco"}],t2:[{w:"chaqueta",em:"🧥",img:"CHA_chaqueta"},{w:"champiñón",em:"🍄",img:"CHA_champinon"},{w:"chancla",em:"👡",img:"CHA_chancla"},{w:"charca",em:"🏞️",img:"CHA_charca"}],t3:[{w:"chaparrón",em:"🌧️",img:"CHA_chaparron"},{w:"charlatán",em:"🗣️",img:"CHA_charlatan"},{w:"chapuzón",em:"🏊",img:"CHA_chapuzon"},{w:"chantaje",em:"😈",img:"CHA_chantaje"}]},
+  CHE:{t1:[{w:"chequeo",em:"✅",img:"CHE_chequeo"},{w:"cheque",em:"💳",img:"CHE_cheque"},{w:"chef",em:"👨‍🍳",img:"CHE_chef"},{w:"chelo",em:"🎻",img:"CHE_chelo"}],t2:[{w:"cherna",em:"🐟",img:"CHE_cherna"},{w:"chelín",em:"🪙",img:"CHE_chelin"},{w:"chester",em:"🛋️",img:"CHE_chester"},{w:"cheshire",em:"😸",img:"CHE_cheshire"}],t3:[{w:"quelista",em:"🎻",img:"CHE_quelista"},{w:"chepa",em:"🐫",img:"CHE_chepa"},{w:"cheroqui",em:"🪶",img:"CHE_cheroqui"},{w:"chercán",em:"🐦",img:"CHE_chercan"}]},
+  CHI:{t1:[{w:"chico",em:"👦",img:"CHI_chico"},{w:"chimenea",em:"🏠",img:"CHI_chimenea"},{w:"chiste",em:"😂",img:"CHI_chiste"},{w:"china",em:"🇨🇳",img:"CHI_china"}],t2:[{w:"chiflado",em:"😜",img:"CHI_chiflado"},{w:"chimpancé",em:"🐒",img:"CHI_chimpance"},{w:"chicharrón",em:"🥓",img:"CHI_chicharron"},{w:"chillar",em:"😱",img:"CHI_chillar"}],t3:[{w:"chiringuito",em:"🏖️",img:"CHI_chiringuito"},{w:"chinchilla",em:"🐭",img:"CHI_chinchilla"},{w:"chirimoya",em:"🍈",img:"CHI_chirimoya"},{w:"chisporrotear",em:"✨",img:"CHI_chisporrotear"}]},
+  CHO:{t1:[{w:"chocolate",em:"🍫",img:"CHO_chocolate"},{w:"chorro",em:"💧",img:"CHO_chorro"},{w:"choque",em:"💥",img:"CHO_choque"},{w:"chorizo",em:"🌭",img:"CHO_chorizo"}],t2:[{w:"chófer",em:"🚗",img:"CHO_chofer"},{w:"chompa",em:"👕",img:"CHO_chompa"},{w:"chopo",em:"🌳",img:"CHO_chopo"},{w:"chorrillo",em:"💧",img:"CHO_chorrillo"}],t3:[{w:"choreografía",em:"💃",img:"CHO_choreografia"},{w:"choclo",em:"🌽",img:"CHO_choclo"},{w:"cholesterol",em:"🩺",img:"CHO_colesterol"},{w:"chocante",em:"😮",img:"CHO_chocante"}]},
+  CHU:{t1:[{w:"chuche",em:"🍬",img:"CHU_chuche"},{w:"chupa",em:"🍭",img:"CHU_chupa"},{w:"churro",em:"🍩",img:"CHU_churro"},{w:"chupete",em:"🍭",img:"CHU_chupete"}],t2:[{w:"chubasquero",em:"🌧️",img:"CHU_chubasquero"},{w:"chuleta",em:"🍖",img:"CHU_chuleta"},{w:"chumbo",em:"🌵",img:"CHU_chumbo"},{w:"churra",em:"🐑",img:"CHU_churra"}],t3:[{w:"chucherías",em:"🍬",img:"CHU_chucherias"},{w:"chuletón",em:"🥩",img:"CHU_chulaton"},{w:"chufla",em:"😂",img:"CHU_chufla"},{w:"chutar",em:"⚽",img:"CHU_chutar"}]},
+  LLA:{t1:[{w:"llama",em:"🦙",img:"LLA_llama"},{w:"llave",em:"🔑",img:"LLA_llave"},{w:"llanto",em:"😢",img:"LLA_llanto"},{w:"llano",em:"🌄",img:"LLA_llano"}],t2:[{w:"llamada",em:"📞",img:"LLA_llamada"},{w:"llamarada",em:"🔥",img:"LLA_llamarada"},{w:"llanero",em:"🤠",img:"LLA_llanero"},{w:"llaga",em:"🩺",img:"LLA_llaga"}],t3:[{w:"llanura",em:"🌾",img:"LLA_llanura"},{w:"llamativo",em:"✨",img:"LLA_llamativo"},{w:"llantén",em:"🌿",img:"LLA_llanten"},{w:"llagoso",em:"😣",img:"LLA_llagoso"}]},
+  LLE:{t1:[{w:"lleno",em:"🔋",img:"LLE_lleno"},{w:"lleva",em:"🚶",img:"LLE_llevar"},{w:"llegar",em:"✅",img:"LLE_llegar"},{w:"llenado",em:"🪣",img:"LLE_llenado"}],t2:[{w:"llevador",em:"💼",img:"LLE_llevador"},{w:"llegada",em:"🏁",img:"LLE_llegada"},{w:"llenadero",em:"🪣",img:"LLE_llenadero"},{w:"llerena",em:"🏘️",img:"LLE_llerena"}],t3:[{w:"llestadura",em:"⚓",img:"LLE_llestadura"},{w:"lleyenda",em:"📖",img:"LLE_lleyenda"},{w:"llenar",em:"🪣",img:"LLE_llenar"},{w:"llenado2",em:"🪣",img:"LLE_llenado2"}]},
+  LLI:{t1:[{w:"llorar",em:"😢",img:"LLI_llorar"},{w:"llover",em:"🌧️",img:"LLI_llover"},{w:"llorica",em:"😭",img:"LLI_llorica"},{w:"llovizna",em:"🌦️",img:"LLI_llovizna"}],t2:[{w:"llovedor",em:"☔",img:"LLI_llovedor"},{w:"llovida",em:"🌧️",img:"LLI_llovida"},{w:"lloradera",em:"😭",img:"LLI_lloradera"},{w:"llorón",em:"😢",img:"LLI_lloron"}],t3:[{w:"lloriqueante",em:"😭",img:"LLI_lloriqueante"},{w:"llovedizo",em:"🌧️",img:"LLI_llovedizo"},{w:"lloriqueo",em:"😭",img:"LLI_lloriqueo"},{w:"lloraduelos",em:"😔",img:"LLI_lloraduelos"}]},
+  LLO:{t1:[{w:"llorar",em:"😢",img:"LLO_llorar"},{w:"llover",em:"🌧️",img:"LLO_llover"},{w:"llorón",em:"😭",img:"LLO_lloron"},{w:"lloro",em:"😢",img:"LLO_lloro"}],t2:[{w:"llovedor",em:"☔",img:"LLO_llovedor"},{w:"llovida",em:"🌧️",img:"LLO_llovida"},{w:"lloriqueo",em:"😭",img:"LLO_lloriqueo"},{w:"lloraduelos",em:"😔",img:"LLO_lloraduelos"}],t3:[{w:"lloriqueante",em:"😭",img:"LLO_lloriqueante"},{w:"llovedizo",em:"🌧️",img:"LLO_llovedizo"},{w:"lloradera",em:"😭",img:"LLO_lloradera"},{w:"llorona",em:"😢",img:"LLO_llorona"}]},
+  LLU:{t1:[{w:"lluvia",em:"🌧️",img:"LLU_lluvia"},{w:"lluvioso",em:"☔",img:"LLU_lluvioso"},{w:"llueca",em:"🐔",img:"LLU_llueca"},{w:"lluma",em:"🔥",img:"LLU_lluma"}],t2:[{w:"lloviznar",em:"🌦️",img:"LLU_lloviznar"},{w:"lluvial",em:"💧",img:"LLU_lluvial"},{w:"llubina",em:"🐟",img:"LLU_llubina"},{w:"lluviosa",em:"🌧️",img:"LLU_lluviosa"}],t3:[{w:"lluvioso2",em:"☔",img:"LLU_lluvioso2"},{w:"lluvias",em:"🌧️",img:"LLU_lluvias"},{w:"lluvia2",em:"🌧️",img:"LLU_lluvia2"},{w:"lluviar",em:"🌧️",img:"LLU_lluviar"}]},
+  GA:{t1:[{w:"gato",em:"🐱",img:"GA_gato"},{w:"gallina",em:"🐓",img:"GA_gallina"},{w:"gafa",em:"👓",img:"GA_gafa"},{w:"gana",em:"🏆",img:"GA_gana"}],t2:[{w:"gaviota",em:"🕊️",img:"GA_gaviota"},{w:"garaje",em:"🚗",img:"GA_garaje"},{w:"gazpacho",em:"🥗",img:"GA_gazpacho"},{w:"galleta",em:"🍪",img:"GA_galleta"}],t3:[{w:"gasolina",em:"⛽",img:"GA_gasolina"},{w:"galaxia",em:"🌌",img:"GA_galaxia"},{w:"galardón",em:"🏅",img:"GA_galardon"},{w:"garantía",em:"✅",img:"GA_garantia"}]},
+  GUE:{t1:[{w:"guerra",em:"⚔️",img:"GUE_guerra"},{w:"guepardo",em:"🐆",img:"GUE_guepardo"},{w:"guerrero",em:"⚔️",img:"GUE_guerrero"},{w:"guisante",em:"🟢",img:"GUE_guisante"}],t2:[{w:"guitarra",em:"🎸",img:"GUE_guitarra"},{w:"guionista",em:"📝",img:"GUE_guionista"},{w:"guindilla",em:"🌶️",img:"GUE_guindilla"},{w:"güero",em:"👱",img:"GUE_guero"}],t3:[{w:"güisqui",em:"🥃",img:"GUE_guisqui"},{w:"guijarro",em:"🪨",img:"GUE_guijarro"},{w:"guirnalda",em:"🌿",img:"GUE_guirnalda"},{w:"guirigay",em:"🗣️",img:"GUE_guirigay"}]},
+  GUI:{t1:[{w:"guía",em:"🗺️",img:"GUI_guia"},{w:"guitarra",em:"🎸",img:"GUI_guitarra"},{w:"guiño",em:"😉",img:"GUI_guino"},{w:"guisante",em:"🟢",img:"GUI_guisante"}],t2:[{w:"guijarro",em:"🪨",img:"GUI_guijarro"},{w:"guindilla",em:"🌶️",img:"GUI_guindilla"},{w:"guirnalda",em:"🌿",img:"GUI_guirnalda"},{w:"guionista",em:"📝",img:"GUI_guionista"}],t3:[{w:"guillotina",em:"⚔️",img:"GUI_guillotina"},{w:"guirigay",em:"🗣️",img:"GUI_guirigay"},{w:"guinda",em:"🍒",img:"GUI_guinda"},{w:"guisar",em:"🍳",img:"GUI_guisar"}]},
+  GO:{t1:[{w:"goma",em:"🪀",img:"GO_goma"},{w:"gordo",em:"😊",img:"GO_gordo"},{w:"gorila",em:"🦍",img:"GO_gorila"},{w:"gorro",em:"🧢",img:"GO_gorro"}],t2:[{w:"gobierno",em:"🏛️",img:"GO_gobierno"},{w:"golosina",em:"🍬",img:"GO_golosina"},{w:"gonzo",em:"🎥",img:"GO_gonzo"},{w:"golpe",em:"💥",img:"GO_golpe"}],t3:[{w:"gorgonzola",em:"🧀",img:"GO_gorgonzola"},{w:"gobernador",em:"👔",img:"GO_gobernador"},{w:"gotera",em:"💧",img:"GO_gotera"},{w:"gozoso",em:"😊",img:"GO_gozoso"}]},
+  GU:{t1:[{w:"guapo",em:"😊",img:"GU_guapo"},{w:"guarda",em:"🛡️",img:"GU_guarda"},{w:"guante",em:"🧤",img:"GU_guante"},{w:"gusano",em:"🐛",img:"GU_gusano"}],t2:[{w:"guardia",em:"👮",img:"GU_guardia"},{w:"gusto",em:"😋",img:"GU_gusto"},{w:"guacamayo",em:"🦜",img:"GU_guacamayo"},{w:"guardarropa",em:"🚪",img:"GU_guardarropa"}],t3:[{w:"guadalupe",em:"🌸",img:"GU_guadalupe"},{w:"guarnición",em:"🍽️",img:"GU_guarnicion"},{w:"gubernamental",em:"🏛️",img:"GU_gubernamental"},{w:"guatemalteco",em:"🇬🇹",img:"GU_guatemalteco"}]},
+  JA:{t1:[{w:"Jaime",em:"👦",img:"JA_jaime"},{w:"jabón",em:"🧼",img:"JA_jabon"},{w:"jardín",em:"🌺",img:"JA_jardin"},{w:"jamón",em:"🍖",img:"JA_jamon"}],t2:[{w:"jabalí",em:"🐗",img:"JA_jabali"},{w:"jarra",em:"🫙",img:"JA_jarra"},{w:"japonés",em:"🇯🇵",img:"JA_japones"},{w:"jaula",em:"🔒",img:"JA_jaula"}],t3:[{w:"jactancia",em:"😤",img:"JA_jactancia"},{w:"jalapeño",em:"🌶️",img:"JA_jalapeno"},{w:"jazmín",em:"🌸",img:"JA_jazmin"},{w:"jacobino",em:"👑",img:"JA_jacobino"}]},
+  JE:{t1:[{w:"Jesús",em:"👦",img:"JE_jesus"},{w:"jefe",em:"👔",img:"JE_jefe"},{w:"jersey",em:"🧥",img:"JE_jersey"},{w:"jeta",em:"😊",img:"JE_jeta"}],t2:[{w:"jerarquía",em:"📊",img:"JE_jerarquia"},{w:"jeroglífico",em:"🔣",img:"JE_jeroglifico"},{w:"jerez",em:"🍷",img:"JE_jerez"},{w:"jesuita",em:"⛪",img:"JE_jesuita"}],t3:[{w:"jerifalte",em:"🦅",img:"JE_jerifalte"},{w:"jetonería",em:"🎲",img:"JE_jetoneria"},{w:"jesucristo",em:"✝️",img:"JE_jesucristo"},{w:"jengibre",em:"🌿",img:"JE_jengibre2"}]},
+  JI:{t1:[{w:"jirafa",em:"🦒",img:"JI_jirafa"},{w:"jilguero",em:"🐦",img:"JI_jilguero"},{w:"jibia",em:"🦑",img:"JI_jibia"},{w:"jinete",em:"🏇",img:"JI_jinete"}],t2:[{w:"jitomate",em:"🍅",img:"JI_jitomate"},{w:"jijona",em:"🍬",img:"JI_jijona"},{w:"jipijapa",em:"👒",img:"JI_jipijapa"},{w:"jinetea",em:"🏇",img:"JI_jinetea"}],t3:[{w:"jibarizar",em:"🌿",img:"JI_jibarizar"},{w:"jicara",em:"🫙",img:"JI_jicara"},{w:"jiribilla",em:"💃",img:"JI_jiribilla"},{w:"jimeno",em:"🌿",img:"JI_jimeno"}]},
+  JO:{t1:[{w:"jota",em:"💃",img:"JO_jota"},{w:"joven",em:"👦",img:"JO_joven"},{w:"joya",em:"💎",img:"JO_joya"},{w:"joker",em:"🃏",img:"JO_joker"}],t2:[{w:"joroba",em:"🐫",img:"JO_joroba"},{w:"jornada",em:"📅",img:"JO_jornada"},{w:"jolgorio",em:"🎉",img:"JO_jolgorio"},{w:"jorobado",em:"🐫",img:"JO_jorobado"}],t3:[{w:"jovialidad",em:"😊",img:"JO_jovialidad"},{w:"jonás",em:"🐳",img:"JO_jonas"},{w:"jorobeta",em:"😊",img:"JO_jorobeta"},{w:"jomada",em:"☀️",img:"JO_jomada"}]},
+  JU:{t1:[{w:"jugo",em:"🧃",img:"JU_jugo"},{w:"juntan",em:"🤝",img:"JU_juntan"},{w:"jugar",em:"🎮",img:"JU_jugar"},{w:"judo",em:"🥋",img:"JU_judo"}],t2:[{w:"jugador",em:"🎮",img:"JU_jugador"},{w:"juntura",em:"🔩",img:"JU_juntura"},{w:"judicial",em:"⚖️",img:"JU_judicial"},{w:"jubilar",em:"🎉",img:"JU_jubilar"}],t3:[{w:"jurisdicción",em:"⚖️",img:"JU_jurisdiccion"},{w:"juvenil",em:"👦",img:"JU_juvenil"},{w:"jubiloso",em:"😊",img:"JU_jubiloso"},{w:"justificante",em:"📄",img:"JU_justificante"}]},
+  CA:{t1:[{w:"casa",em:"🏠",img:"CA_casa"},{w:"cama",em:"🛏️",img:"CA_cama"},{w:"cara",em:"😊",img:"CA_cara"},{w:"carro",em:"🚗",img:"CA_carro"}],t2:[{w:"camisa",em:"👕",img:"CA_camisa"},{w:"caña",em:"🎋",img:"CA_cana"},{w:"cactus",em:"🌵",img:"CA_cactus"},{w:"calamar",em:"🦑",img:"CA_calamar"}],t3:[{w:"carnaval",em:"🎭",img:"CA_carnaval"},{w:"catedral",em:"⛪",img:"CA_catedral"},{w:"calabaza",em:"🎃",img:"CA_calabaza"},{w:"caravana",em:"🚐",img:"CA_caravana"}]},
+  CO:{t1:[{w:"coco",em:"🥥",img:"CO_coco"},{w:"cocina",em:"🍳",img:"CO_cocina"},{w:"coche",em:"🚗",img:"CO_coche"},{w:"copa",em:"🏆",img:"CO_copa"}],t2:[{w:"cocodrilo",em:"🐊",img:"CO_cocodrilo"},{w:"cohete",em:"🚀",img:"CO_cohete"},{w:"coliflor",em:"🥦",img:"CO_coliflor"},{w:"colchón",em:"🛏️",img:"CO_colchon"}],t3:[{w:"cometa",em:"☄️",img:"CO_cometa"},{w:"corazón",em:"❤️",img:"CO_corazon"},{w:"colesterol",em:"🩺",img:"CO_colesterol"},{w:"cola",em:"🐒",img:"CO_cola"}]},
+  CU:{t1:[{w:"cuna",em:"🛏️",img:"CU_cuna"},{w:"cubo",em:"🪣",img:"CU_cubo"},{w:"cuello",em:"🦒",img:"CU_cuello"},{w:"cuerpo",em:"💪",img:"CU_cuerpo"}],t2:[{w:"cucaracha",em:"🪳",img:"CU_cucaracha"},{w:"cumpleaños",em:"🎂",img:"CU_cumpleanos"},{w:"cuaderno",em:"📓",img:"CU_cuaderno"},{w:"cuchara",em:"🥄",img:"CU_cuchara"}],t3:[{w:"curiosidad",em:"🔍",img:"CU_curiosidad"},{w:"cultura",em:"🎭",img:"CU_cultura"},{w:"cuestionario",em:"📋",img:"CU_cuestionario"},{w:"cuadrúpedo",em:"🐾",img:"CU_cuadrupedo"}]},
+};
+
+// ============================================================
+// LEVELS
+// ============================================================
+const LEVELS=[
+  {id:"P", name:"La P",         emoji:"👄",color:"#E05050",sils:["PA","PE","PI","PO","PU"]},
+  {id:"M", name:"La M",         emoji:"👅",color:"#E07820",sils:["MA","ME","MI","MO","MU"]},
+  {id:"B", name:"La B",         emoji:"💋",color:"#2090CC",sils:["BA","BE","BI","BO","BU"]},
+  {id:"ZC",name:"La Z/C",       emoji:"🦋",color:"#16A97A",sils:["ZA","CE","CI","ZO","ZU"]},
+  {id:"S", name:"La S directa", emoji:"🌈",color:"#7B5CF6",sils:["SA","SE","SI","SO","SU"]},
+  {id:"SF",name:"La S final",   emoji:"🔚",color:"#9B7BCC",sils:["SF"]},
+  {id:"F", name:"La F",         emoji:"🌬️",color:"#CC7020",sils:["FA","FE","FI","FO","FU"]},
+  {id:"N", name:"La N",         emoji:"🌙",color:"#2060B8",sils:["NA","NE","NI","NO","NU"]},
+  {id:"L", name:"La L",         emoji:"🌟",color:"#E0A020",sils:["LA","LE","LI","LO","LU"]},
+  {id:"RS",name:"La R suave",   emoji:"🌊",color:"#20B8CC",sils:["RA","RE","RI","RO","RU"]},
+  {id:"RF",name:"La R fuerte",  emoji:"🔥",color:"#CC3030",sils:["RRA","RRE","RRI","RRO","RRU"]},
+  {id:"T", name:"La T",         emoji:"🎯",color:"#20A060",sils:["TA","TE","TI","TO","TU"]},
+  {id:"CH",name:"El CH",        emoji:"🍫",color:"#884422",sils:["CHA","CHE","CHI","CHO","CHU"]},
+  {id:"LL",name:"El LL",        emoji:"🌧️",color:"#4488CC",sils:["LLA","LLE","LLI","LLO","LLU"]},
+  {id:"G", name:"La G",         emoji:"🐱",color:"#228844",sils:["GA","GUE","GUI","GO","GU"]},
+  {id:"J", name:"La J",         emoji:"🧼",color:"#CC8820",sils:["JA","JE","JI","JO","JU"]},
+  {id:"CK",name:"La C/K",       emoji:"🏠",color:"#884488",sils:["CA","CO","CU"]},
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let S={
+  childName:'',streak:0,gamesPlayed:0,lastDate:null,
+  levelPlays:{},levelStars:{},
+  unlockedLevels:LEVELS.map(l=>l.id),
+  customWords:{},
+  customPhrases:{}, // levelId -> [{id, frase, words, isCustom}]
+  customImgs:{},
+  phraseAudios:{},  // phraseId_key -> dataURL
+  wordAudios:{},
+  theme:'azul',
+};
+function loadS(){try{const s=localStorage.getItem('fp_pro');if(s)S=JSON.parse(s);}catch(e){}}
+function saveS(){try{localStorage.setItem('fp_pro',JSON.stringify(S));}catch(e){}}
+loadS();
+
+// ============================================================
+// IMAGE RESOLUTION — iPad > GitHub > emoji
+// ============================================================
+function getImgEl(imgKey,em,size=44){
+  // 1. iPad custom
+  if(S.customImgs[imgKey]){
+    return `<img src="${S.customImgs[imgKey]}" style="width:${size}px;height:${size}px;object-fit:cover;border-radius:8px;">`;
+  }
+  // 2. GitHub
+  return `<img src="${GITHUB}/imagenes/${imgKey}.png" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:8px;" onerror="this.outerHTML='<span style=\\'font-size:${size*0.7}px\\'>${em}</span>'">`;
+}
+
+// ============================================================
+// TIER & WORD BUILDING
+// ============================================================
+function getTier(lid){const p=S.levelPlays[lid]||0;return p>=25?3:p>=10?2:1;}
+
+function getWordPool(sil,lid){
+  const data=WORDS[sil];if(!data)return[];
+  const tier=getTier(lid);
+  let pool=[...data.t1];
+  if(tier>=2)pool=[...pool,...data.t2];
+  if(tier>=3)pool=[...pool,...data.t3];
+  // Add custom words
+  if(S.customWords[sil])pool=[...pool,...S.customWords[sil]];
+  return pool;
+}
+
+function pickWord(sil,lid,used){
+  const pool=getWordPool(sil,lid).filter(w=>!used.includes(w.w));
+  const src=pool.length?pool:getWordPool(sil,lid);
+  return src[Math.floor(Math.random()*src.length)];
+}
+
+function buildPairs(level){
+  const used=[];
+  return level.sils.map(sil=>{
+    const w=pickWord(sil,level.id,used);
+    if(w)used.push(w.w);
+    return w?{sil,phoneme:sil,word:w.w,em:w.em,imgKey:w.img}:{sil,phoneme:sil,word:"?",em:"❓",imgKey:""};
+  });
+}
+
+// ============================================================
+// FRASES PREDEFINIDAS — múltiples por nivel
+// Solo aparece si las palabras del tablero coinciden
+// ============================================================
+const LEVEL_PHRASES = {
+  P:[
+    {id:"P_1", frase:"El pato tiene pelo en el pie junto a la puerta", words:["pato","pelo","pie","puerta"]},
+    {id:"P_2", frase:"Papá pone pan en el polo",                        words:["papá","pan","polo"]},
+  ],
+  M:[
+    {id:"M_1", frase:"Mamá pone el melón en la mesa con la mano",       words:["mamá","melón","mesa","mano"]},
+    {id:"M_2", frase:"El mono sube en moto con la muñeca",              words:["mono","moto","muñeca"]},
+  ],
+  B:[
+    {id:"B_1", frase:"Bea va en bici con la bola y la bata",            words:["Bea","bici","bola","bata"]},
+    {id:"B_2", frase:"El barco lleva una bota y un burro",              words:["barco","bota","burro"]},
+  ],
+  ZC:[
+    {id:"ZC_1", frase:"En el zoo cenan con zumo bajo el cielo",         words:["zoo","zumo","cielo","cena"]},
+    {id:"ZC_2", frase:"Celia tiene cien zapatos azules",                words:["Celia","cien","zapato"]},
+  ],
+  S:[
+    {id:"S_1", frase:"Sara come sopa y sandía sentada en la silla",     words:["Sara","sopa","sandía","silla"]},
+    {id:"S_2", frase:"El sapo salta sobre la seta",                     words:["sapo","seta"]},
+  ],
+  SF:[
+    {id:"SF_1", frase:"Isabela tiene tos y sube al autobús",            words:["Isabela","tos","autobús"]},
+  ],
+  F:[
+    {id:"F_1", frase:"Felipe hace una foto del fuego en la feria",      words:["Felipe","foto","fuego","feria"]},
+    {id:"F_2", frase:"La foca feliz salta en la finca",                 words:["foca","finca"]},
+  ],
+  N:[
+    {id:"N_1", frase:"Nora ve la noche con nubes y niño",               words:["Nora","noche","nube","niño"]},
+    {id:"N_2", frase:"El niño nada en el río con la nariz",             words:["niño","nariz"]},
+  ],
+  L:[
+    {id:"L_1", frase:"La luna luce sobre el lago con el loro",          words:["luna","luce","lago","loro"]},
+    {id:"L_2", frase:"El lobo lee un libro bajo la luna",               words:["lobo","libro","luna"]},
+  ],
+  RS:[
+    {id:"RS_1", frase:"Rori ve la rosa junto al río con la rueda",      words:["Rori","rosa","río","rueda"]},
+    {id:"RS_2", frase:"El reloj del loro cae al río",                   words:["reloj","loro","río"]},
+  ],
+  RF:[
+    {id:"RF_1", frase:"La rata rápida cruza la reja roja",              words:["rata","rápida","reja","rojo"]},
+    {id:"RF_2", frase:"La rata roe la rama en la reja",                 words:["rata","rama","reja"]},
+  ],
+  T:[
+    {id:"T_1", frase:"Tere toma tarta con el tigre junto al toro",      words:["Tere","tarta","tigre","toro"]},
+    {id:"T_2", frase:"El tigre toma taza de té con la tortuga",         words:["tigre","taza","tortuga"]},
+  ],
+  CH:[
+    {id:"CH_1", frase:"Charo y el chico comen churros con chocolate",   words:["Charo","chico","churro","chocolate"]},
+    {id:"CH_2", frase:"El chico chupa chucherías en el charco",         words:["chico","chucherías","charco"]},
+  ],
+  LL:[
+    {id:"LL_1", frase:"La llama llora bajo la lluvia con la llave",     words:["llama","lluvia","llave"]},
+    {id:"LL_2", frase:"La llama lleva la llave al llano",               words:["llama","llave","llano"]},
+  ],
+  G:[
+    {id:"G_1", frase:"El gato gordo guarda la guitarra",                words:["gato","gordo","guitarra"]},
+    {id:"G_2", frase:"El gato guapo guarda la gallina",                 words:["gato","guapo","gallina"]},
+  ],
+  J:[
+    {id:"J_1", frase:"Jaime y Jesús juntan jabón y jugo",               words:["Jaime","Jesús","juntan","jabón","jugo"]},
+    {id:"J_2", frase:"La jirafa joven juega en el jardín",              words:["jirafa","joven","jardín"]},
+  ],
+  CK:[
+    {id:"CK_1", frase:"En la casa hay cocina cuna y coco",              words:["casa","cocina","cuna","coco"]},
+    {id:"CK_2", frase:"El coche de Coco cabe en la casa",               words:["coche","coco","casa"]},
+  ],
+};
+
+function getLevelPhrase(level, pairs){
+  const pairWords = pairs ? pairs.map(p=>p.word.toLowerCase()) : [];
+  // Check custom phrases first
+  const customs = (S.customPhrases&&S.customPhrases[level.id])||[];
+  for(const cp of customs){
+    if(cp.words.every(w=>pairWords.includes(w.toLowerCase())))
+      return {frase:cp.frase, id:cp.id, isCustom:true};
+  }
+  // Check predefined
+  const defs = LEVEL_PHRASES[level.id]||[];
+  for(const def of defs){
+    if(def.words.every(w=>pairWords.includes(w.toLowerCase())))
+      return {frase:def.frase, id:def.id, isCustom:false};
+  }
+  return null;
+}
+
+function getAllPhrases(levelId){
+  const pre = LEVEL_PHRASES[levelId]||[];
+  const custom = (S.customPhrases&&S.customPhrases[levelId])||[];
+  return [...pre, ...custom];
+}
+
+function getPhraseAudioKey(phraseId){ return `phrase_${phraseId}`; }
+
+// ============================================================
+// THEMES
+// ============================================================
+const THEMES = ['azul','rosa','pergamino'];
+
+function setTheme(t){
+  if(!THEMES.includes(t)) t='azul';
+  S.theme=t; saveS();
+  document.body.className = t==='azul' ? '' : `theme-${t}`;
+  // Update all theme buttons
+  THEMES.forEach(th=>{
+    ['tb','adm-tb'].forEach(prefix=>{
+      const btn=document.getElementById(`${prefix}-${th}`);
+      if(btn) btn.classList.toggle('active', th===t);
+    });
+  });
+  // Update body background
+  document.body.style.background = getComputedStyle(document.body).getPropertyValue('--bg').trim();
+}
+
+function applyTheme(){
+  setTheme(S.theme||'azul');
+}
+let pinBuffer='',pinTarget='';
+const PIN='1234';
+
+function askPin(target){
+  pinBuffer='';pinTarget=target;
+  updatePinDots();
+  document.getElementById('pinError').textContent='';
+  document.getElementById('pinModal').classList.add('show');
+}
+function pinTap(d){
+  if(pinBuffer.length>=4)return;
+  pinBuffer+=d;updatePinDots();
+  if(pinBuffer.length===4){
+    if(pinBuffer===PIN){
+      document.getElementById('pinModal').classList.remove('show');
+      if(pinTarget==='edit')openEditMode();
+    } else {
+      document.getElementById('pinError').textContent='PIN incorrecto. Inténtalo de nuevo.';
+      setTimeout(()=>{pinBuffer='';updatePinDots();document.getElementById('pinError').textContent='';},800);
+    }
+  }
+}
+function pinClear(){if(pinBuffer.length)pinBuffer=pinBuffer.slice(0,-1);updatePinDots();}
+function pinCancel(){document.getElementById('pinModal').classList.remove('show');pinBuffer='';}
+function updatePinDots(){
+  for(let i=0;i<4;i++){
+    const d=document.getElementById(`pd${i}`);
+    if(d)d.classList.toggle('filled',i<pinBuffer.length);
+  }
+}
+
+// ============================================================
+// AUDIO POR CAPAS — palabra: iPad > GitHub > síntesis
+// ============================================================
+async function speakWord(phoneme, word, imgKey){
+  if(!window.speechSynthesis && !S.wordAudios) return;
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  const pill=document.getElementById('speakPill');
+  document.getElementById('speakText').textContent=`${phoneme}... ${word}`;
+  pill.classList.add('show');
+  setTimeout(()=>pill.classList.remove('show'), 2500);
+
+  // 1. Audio local iPad
+  if(S.wordAudios && S.wordAudios[imgKey]){
+    try{
+      const a=new Audio(S.wordAudios[imgKey]);
+      await a.play();return;
+    }catch(e){}
+  }
+  // 2. Audio en GitHub /audios/
+  try{
+    const url=`${GITHUB}/audios/${imgKey}.mp3`;
+    const a=new Audio(url);
+    await new Promise((res,rej)=>{a.oncanplaythrough=res;a.onerror=rej;a.load();});
+    await a.play();return;
+  }catch(e){}
+  // 3. Síntesis iPad
+  if(!window.speechSynthesis)return;
+  const u1=new SpeechSynthesisUtterance(phoneme);u1.lang='es-ES';u1.rate=0.7;u1.pitch=1.1;
+  const u2=new SpeechSynthesisUtterance(word);u2.lang='es-ES';u2.rate=0.85;u2.pitch=1.1;
+  u2.onend=()=>setTimeout(()=>pill.classList.remove('show'),300);
+  window.speechSynthesis.speak(u1);
+  setTimeout(()=>window.speechSynthesis.speak(u2),900);
+}
+
+// Wrapper para compatibilidad (memoria/conectar)
+function speak(phoneme, word, imgKey){
+  speakWord(phoneme, word, imgKey||`${phoneme}_${word}`);
+}
+
+// Frase: iPad > GitHub > síntesis
+async function speakPhrase(audioKey, phrase){
+  // 1. Audio local iPad
+  if(S.phraseAudios&&S.phraseAudios[audioKey]){
+    try{const a=new Audio(S.phraseAudios[audioKey]);await a.play();return;}catch(e){}
+  }
+  // 2. Audio en GitHub /frases/
+  try{
+    const url=`${GITHUB}/frases/${audioKey}.mp3`;
+    const a=new Audio(url);
+    await new Promise((res,rej)=>{a.oncanplaythrough=res;a.onerror=rej;a.load();});
+    await a.play();return;
+  }catch(e){}
+  // 3. Síntesis iPad
+  speakText(phrase);
+}
+
+function speakText(text,rate=0.8){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);u.lang='es-ES';u.rate=rate;u.pitch=1.05;
+  window.speechSynthesis.speak(u);
+}
+
+// ============================================================
+// NAV
+// ============================================================
+function goScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function goHome(){window.speechSynthesis&&window.speechSynthesis.cancel();renderHome();goScreen('home');}
+function goAdmin(){renderAdmin();goScreen('admin');}
+
+// ============================================================
+// WELCOME
+// ============================================================
+function saveName(){
+  const n=document.getElementById('nameInput').value.trim();
+  if(!n){document.getElementById('nameInput').focus();return;}
+  S.childName=n;saveS();renderHome();goScreen('home');
+}
+
+// ============================================================
+// HOME
+// ============================================================
+let selectedMode='connect';
+function selectMode(m){
+  selectedMode=m;
+  document.getElementById('modeConnect').classList.toggle('selected',m==='connect');
+  document.getElementById('modeMemory').classList.toggle('selected',m==='memory');
+}
+
+function renderHome(){
+  document.getElementById('homeName').textContent=S.childName||'';
+  document.getElementById('streakN').textContent=S.streak||0;
+  const grid=document.getElementById('levelsGrid');grid.innerHTML='';
+  LEVELS.forEach(lv=>{
+    const unlocked=S.unlockedLevels.includes(lv.id);
+    const plays=S.levelPlays[lv.id]||0;
+    const tier=getTier(lv.id);
+    const stars=S.levelStars[lv.id]||0;
+    const tierIcon=tier===3?'🔓🔓🔓':tier===2?'🔓🔓':plays>0?`${plays}▶`:'▶';
+    const btn=document.createElement('div');
+    btn.className=`level-btn${unlocked?'':' locked'}`;
+    btn.style.borderColor=lv.color+'55';
+    btn.innerHTML=`<span class="lb-emoji">${lv.emoji}</span><div class="lb-name">${lv.name}</div><div class="lb-progress">${tierIcon} ${'⭐'.repeat(stars)}</div>`;
+    if(unlocked)btn.onclick=()=>startGame(lv.id);
+    grid.appendChild(btn);
+  });
+}
+
+// ============================================================
+// GAME
+// ============================================================
+let currentLevel=null,currentPairs=[],lastLevelId=null;
+let pairsFound=0,totalPairs=0,errors=0,gameStartTime=0;
+let memFlipped=[],memLocked=false,connectSelected=null;
+let sessionPhrase=null;
+
+function startGame(lid){
+  currentLevel=LEVELS.find(l=>l.id===lid);lastLevelId=lid;
+  currentPairs=buildPairs(currentLevel);
+  sessionPhrase=getLevelPhrase(currentLevel, currentPairs); // {frase, id, isCustom} or null
+  pairsFound=0;errors=0;totalPairs=currentPairs.length;gameStartTime=Date.now();
+  const today=new Date().toDateString();
+  if(S.lastDate!==today){const y=new Date(Date.now()-86400000).toDateString();S.streak=(S.lastDate===y)?(S.streak||0)+1:1;S.lastDate=today;}
+  S.gamesPlayed=(S.gamesPlayed||0)+1;
+  S.levelPlays=S.levelPlays||{};S.levelPlays[lid]=(S.levelPlays[lid]||0)+1;
+  saveS();
+  document.getElementById('gameLevelName').textContent=currentLevel.name;
+  document.getElementById('gameModeTag').textContent=selectedMode==='connect'?'🔗 Unir':'🃏 Memoria';
+  document.getElementById('gameScore').textContent='0';
+  document.getElementById('gameProgFill').style.width='0%';
+  const board=document.getElementById('gameBoard');board.innerHTML='';
+  board.style.flex='1';board.style.display='flex';board.style.flexDirection='column';
+  if(selectedMode==='memory')renderMemory(board);else renderConnect(board);
+  goScreen('game');
+}
+
+function updateProg(){
+  document.getElementById('gameProgFill').style.width=`${(pairsFound/totalPairs)*100}%`;
+  document.getElementById('gameScore').textContent=pairsFound;
+}
+
+// MEMORY
+function renderMemory(board){
+  memFlipped=[];memLocked=false;
+  const cards=[];
+  currentPairs.forEach((pair,i)=>{
+    cards.push({id:`p${i}`,pairId:i,type:'phoneme',pair});
+    cards.push({id:`w${i}`,pairId:i,type:'word',pair});
+  });
+  cards.sort(()=>Math.random()-0.5);
+  const cols=3,rows=Math.ceil(cards.length/cols);
+  const grid=document.createElement('div');grid.className='memory-grid';
+  grid.style.cssText=`grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);flex:1;`;
+  board.appendChild(grid);
+  cards.forEach(card=>{
+    const el=document.createElement('div');el.className='mem-card';
+    el.dataset.pairId=card.pairId;el.dataset.type=card.type;
+    const front=document.createElement('div');front.className='card-front';
+    front.innerHTML='<span style="font-size:28px">🎴</span>';
+    const back=document.createElement('div');back.className='card-back';
+    if(card.type==='phoneme'){
+      const fs=card.pair.phoneme.length<=2?'9vw':'7vw';
+      back.innerHTML=`<div class="card-phoneme" style="font-size:${fs};color:${currentLevel.color}">${card.pair.phoneme}</div>`;
+    } else {
+      const imgSize=Math.round(window.innerWidth*0.12);
+      back.innerHTML=`${getImgEl(card.pair.imgKey,card.pair.em,imgSize)}<div class="card-word" style="font-size:${card.pair.word.length>6?'3vw':'4vw'};margin-top:4px">${card.pair.word}</div>`;
+    }
+    el.appendChild(front);el.appendChild(back);
+    el.onclick=()=>flipCard(el,card);grid.appendChild(el);
+  });
+}
+
+function flipCard(el,card){
+  if(memLocked||el.classList.contains('flipped')||el.classList.contains('matched'))return;
+  el.classList.add('flipped');memFlipped.push({el,card});
+  if(memFlipped.length===2){
+    memLocked=true;const[a,b]=memFlipped;
+    if(a.card.pairId===b.card.pairId&&a.card.type!==b.card.type){
+      setTimeout(()=>{
+        a.el.classList.add('matched');b.el.classList.add('matched');
+        showFoundFlash();speak(a.card.pair.phoneme,a.card.pair.word,a.card.pair.imgKey);
+        pairsFound++;updateProg();memFlipped=[];memLocked=false;
+        if(pairsFound>=totalPairs)setTimeout(showCelebration,900);
+      },400);
+    } else {
+      errors++;
+      setTimeout(()=>{
+        a.el.classList.add('wrong');b.el.classList.add('wrong');
+        setTimeout(()=>{a.el.classList.remove('flipped','wrong');b.el.classList.remove('flipped','wrong');memFlipped=[];memLocked=false;},650);
+      },500);
+    }
+  }
+}
+
+// CONNECT
+function renderConnect(board){
+  connectSelected=null;
+  const lp=[...currentPairs].sort(()=>Math.random()-0.5);
+  const rp=[...currentPairs].sort(()=>Math.random()-0.5);
+  const area=document.createElement('div');area.className='connect-area';
+  const cols=document.createElement('div');cols.className='connect-cols';
+  const lc=document.createElement('div');lc.className='connect-col';
+  const rc=document.createElement('div');rc.className='connect-col';
+  lp.forEach(pair=>{
+    const card=document.createElement('div');card.className='connect-card';
+    card.dataset.pairIdx=currentPairs.indexOf(pair);card.dataset.side='left';
+    const fs=pair.phoneme.length<=2?'9vw':'7vw';
+    card.innerHTML=`<div class="cc-phoneme" style="font-size:${fs};color:${currentLevel.color}">${pair.phoneme}</div>`;
+    card.onclick=()=>connectTap(card);lc.appendChild(card);
+  });
+  rp.forEach(pair=>{
+    const card=document.createElement('div');card.className='connect-card';
+    card.dataset.pairIdx=currentPairs.indexOf(pair);card.dataset.side='right';
+    const imgSize=Math.round(window.innerWidth*0.1);
+    card.innerHTML=`${getImgEl(pair.imgKey,pair.em,imgSize)}<div class="cc-word" style="font-size:${pair.word.length>6?'3vw':'4vw'}">${pair.word}</div>`;
+    card.onclick=()=>connectTap(card);rc.appendChild(card);
+  });
+  cols.appendChild(lc);cols.appendChild(rc);area.appendChild(cols);board.appendChild(area);
+}
+
+function connectTap(card){
+  if(card.classList.contains('matched'))return;
+  if(!connectSelected){connectSelected=card;card.classList.add('selected');return;}
+  if(connectSelected===card){card.classList.remove('selected');connectSelected=null;return;}
+  if(connectSelected.dataset.side===card.dataset.side){connectSelected.classList.remove('selected');connectSelected=card;card.classList.add('selected');return;}
+  const ai=parseInt(connectSelected.dataset.pairIdx),bi=parseInt(card.dataset.pairIdx);
+  const prev=connectSelected;connectSelected=null;
+  if(ai===bi){
+    prev.classList.remove('selected');prev.classList.add('matched');card.classList.add('matched');
+    const pair=currentPairs[ai];showFoundFlash();speak(pair.phoneme,pair.word,pair.imgKey);
+    pairsFound++;updateProg();
+    if(pairsFound>=totalPairs)setTimeout(showCelebration,900);
+  } else {
+    errors++;prev.classList.remove('selected');prev.classList.add('wrong');card.classList.add('wrong');
+    setTimeout(()=>{prev.classList.remove('wrong');card.classList.remove('wrong');},500);
+  }
+}
+
+function showFoundFlash(){const f=document.getElementById('foundFlash');f.classList.remove('show');void f.offsetWidth;f.classList.add('show');}
+
+// ============================================================
+// CELEBRATION
+// ============================================================
+function showCelebration(){
+  const elapsed=Math.round((Date.now()-gameStartTime)/1000);
+  const stars=errors===0?3:errors<=2?2:1;
+  if(!S.levelStars)S.levelStars={};
+  if((S.levelStars[currentLevel.id]||0)<stars){S.levelStars[currentLevel.id]=stars;saveS();}
+  const name=S.childName||'campeón';
+  const msgs=errors===0?[`¡Perfecto, ${name}! 🏆`,'¡Cero errores! Eres increíble']:errors<=2?[`¡Genial, ${name}! ⭐`,'Tu memoria es increíble']:[`¡Muy bien, ${name}! 💪`,'Cada vez lo haces mejor'];
+  document.getElementById('celebEmoji').textContent=stars===3?'🏆':stars===2?'⭐':'💪';
+  document.getElementById('celebTitle').innerHTML=msgs[0].replace(name,`<span>${name}</span>`);
+  document.getElementById('celebMsg').textContent=msgs[1];
+  const sr=document.getElementById('starsEarned');sr.innerHTML='';
+  for(let i=0;i<stars;i++){const s=document.createElement('div');s.className='star-e';s.textContent='⭐';s.style.animationDelay=`${i*0.15}s`;sr.appendChild(s);}
+  const pb=document.getElementById('celebPhraseBox');
+  if(sessionPhrase&&sessionPhrase.frase){
+    pb.style.display='block';
+    document.getElementById('celebPhraseText').textContent=sessionPhrase.frase;
+  } else pb.style.display='none';
+  const mins=Math.floor(elapsed/60),secs=elapsed%60;
+  document.getElementById('celebStats').innerHTML=`<div class="cs-box"><div class="cs-n">${totalPairs}</div><div class="cs-l">Parejas</div></div><div class="cs-box"><div class="cs-n">${errors}</div><div class="cs-l">Errores</div></div><div class="cs-box"><div class="cs-n">${mins>0?mins+'m ':''} ${secs}s</div><div class="cs-l">Tiempo</div></div>`;
+  goScreen('celebration');launchConfetti();
+  if(sessionPhrase&&sessionPhrase.frase){
+    const audioKey=getPhraseAudioKey(sessionPhrase.id);
+    setTimeout(()=>speakPhrase(audioKey, sessionPhrase.frase),1800);
+  }
+}
+
+function playAgain(){startGame(lastLevelId);}
+
+function launchConfetti(){
+  const canvas=document.getElementById('confetti');canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const ctx=canvas.getContext('2d');const cols=['#3A7BD5','#FF6B9D','#16A97A','#E8A020','#48DBFB','#9B5CF6'];
+  const pieces=Array.from({length:120},()=>({x:Math.random()*canvas.width,y:-20,vx:(Math.random()-0.5)*5,vy:2+Math.random()*4,color:cols[Math.floor(Math.random()*cols.length)],size:5+Math.random()*9,rot:Math.random()*360,vrot:(Math.random()-0.5)*10,alive:true}));
+  let frame=0;
+  function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);pieces.forEach(p=>{if(!p.alive)return;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);ctx.restore();p.x+=p.vx;p.y+=p.vy;p.rot+=p.vrot;if(p.y>canvas.height+20)p.alive=false;});frame++;if(frame<300)requestAnimationFrame(draw);else ctx.clearRect(0,0,canvas.width,canvas.height);}
+  draw();
+}
+
+// ============================================================
+// EDIT MODE
+// ============================================================
+function openEditMode(){
+  renderEditMode();goScreen('editMode');
+}
+
+function renderEditMode(){
+  const container=document.getElementById('editContent');container.innerHTML='';
+  LEVELS.forEach(lv=>{
+    const def = LEVEL_PHRASES[lv.id];
+    const block=document.createElement('div');block.className='edit-level-accordion';
+    const header=document.createElement('div');header.className='ela-header';
+    header.innerHTML=`<div class="ela-left"><span style="font-size:20px">${lv.emoji}</span><div class="ela-name">${lv.name}</div></div><span class="ela-arrow" id="earr-${lv.id}">▼</span>`;
+    header.onclick=()=>{
+      const body=document.getElementById(`ebody-${lv.id}`);
+      const arrow=document.getElementById(`earr-${lv.id}`);
+      body.classList.toggle('open');arrow.classList.toggle('open');
+    };
+    const body=document.createElement('div');body.className='ela-body';body.id=`ebody-${lv.id}`;
+
+    // Frases section
+    const phrasesHTML = getAllPhrases(lv.id).map((p,pi)=>{
+      const audioKey = getPhraseAudioKey(p.id);
+      const hasAudio = !!(S.phraseAudios&&S.phraseAudios[audioKey]);
+      const isCustom = p.isCustom || !LEVEL_PHRASES[lv.id]?.find(x=>x.id===p.id);
+      return `
+        <div style="background:var(--bg2);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;">
+          <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;">
+            ${isCustom?'✏️ Personalizada':'📌 Predefinida'} ${pi+1}
+          </div>
+          <div style="font-size:14px;color:var(--text);font-weight:600;margin-bottom:8px;line-height:1.4;">
+            "${p.frase}"
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">
+            Palabras: ${p.words.join(', ')}
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-sm orange" onclick="testPhraseById('${p.id}','${lv.id}')">▶ Test</button>
+            <button class="btn-sm ${hasAudio?'green':'blue'}" onclick="loadPhraseAudioById('${audioKey}')">
+              ${hasAudio?'🔊 Audio ✅':'🎤 Subir audio'}
+            </button>
+            ${hasAudio?`<button class="btn-sm red" onclick="deletePhraseAudioById('${audioKey}')">🗑</button>`:''}
+            ${isCustom?`<button class="btn-sm red" onclick="deleteCustomPhrase('${lv.id}','${p.id}')">❌ Borrar</button>`:''}
+          </div>
+        </div>`;
+    }).join('');
+
+    body.innerHTML=`
+      <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🎵 Frases del nivel</div>
+      ${phrasesHTML}
+      <div style="background:var(--card);border:2px dashed var(--border);border-radius:var(--radius-sm);padding:12px;margin-top:10px;">
+        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;">➕ Crear frase nueva</div>
+        <textarea id="nf-frase-${lv.id}" placeholder="Escribe la frase..." rows="2"
+          style="width:100%;padding:10px;border-radius:10px;border:2px solid var(--border);background:var(--bg);color:var(--text);font-family:Quicksand,sans-serif;font-size:14px;resize:none;margin-bottom:8px;outline:none;"></textarea>
+        <input id="nf-words-${lv.id}" placeholder="Palabras clave separadas por comas: pato,pelo,pie"
+          style="width:100%;padding:8px 12px;border-radius:50px;border:2px solid var(--border);background:var(--bg);color:var(--text);font-family:Quicksand,sans-serif;font-size:13px;margin-bottom:8px;outline:none;">
+        <button class="btn-sm blue" onclick="addCustomPhrase('${lv.id}')">Guardar frase</button>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px;">🃏 Palabras por sílaba</div>
+    `;
+
+    // Sílabas
+    lv.sils.forEach(sil=>{
+      const pool=getWordPool(sil,lv.id);
+      const silBlock=document.createElement('div');silBlock.className='sil-block';
+      silBlock.innerHTML=`<div class="sil-title">${sil}</div>`;
+      pool.forEach((word,wi)=>{
+        const hasCustomImg=!!(S.customImgs&&S.customImgs[word.img]);
+        const hasCustomAudio=!!(S.wordAudios&&S.wordAudios[word.img]);
+        const row=document.createElement('div');row.className='word-item';
+        row.innerHTML=`
+          <div class="word-img-thumb" onclick="changeWordImg('${word.img||sil+"_"+word.w}','${wi}','${sil}')">
+            ${getImgEl(word.img||sil+"_"+word.w,word.em,32)}
+          </div>
+          <span class="word-em">${word.em}</span>
+          <span class="word-label">${word.w}</span>
+          <button class="btn-sm ${hasCustomAudio?'green':'orange'}" onclick="loadWordAudio('${word.img}')" title="${hasCustomAudio?'Audio propio cargado':'Subir audio'}">
+            ${hasCustomAudio?'🔊':'🎤'}
+          </button>
+          <span style="font-size:11px;color:var(--muted)">${hasCustomImg?'📱':'🌐'}</span>
+        `;
+        silBlock.appendChild(row);
+      });
+      // Add word with emoji picker
+      const addRow=document.createElement('div');addRow.className='add-word-row';
+      addRow.innerHTML=`
+        <input class="add-word-input" id="aw-${sil}" placeholder="Nueva palabra..." maxlength="20" autocorrect="off">
+        <button class="btn-sm orange" onclick="pickEmojiForWord('${sil}')" id="em-btn-${sil}" title="Elegir emoji">😊</button>
+        <input type="hidden" id="em-val-${sil}" value="✏️">
+        <button class="btn-sm blue" onclick="addCustomWord('${sil}','${lv.id}')">+ Añadir</button>
+      `;
+      silBlock.appendChild(addRow);
+      body.appendChild(silBlock);
+    });
+
+    block.appendChild(header);block.appendChild(body);container.appendChild(block);
+  });
+}
+
+function testPhraseById(phraseId, levelId){
+  const all = getAllPhrases(levelId);
+  const p = all.find(x=>x.id===phraseId);
+  if(p) speakPhrase(getPhraseAudioKey(phraseId), p.frase);
+}
+
+function loadPhraseAudioById(audioKey){
+  const inp=document.getElementById('audioPicker');
+  inp.onchange=async()=>{
+    const file=inp.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=e=>{
+      if(!S.phraseAudios)S.phraseAudios={};
+      S.phraseAudios[audioKey]=e.target.result;saveS();renderEditMode();
+    };
+    reader.readAsDataURL(file);inp.value='';
+  };
+  inp.click();
+}
+
+function deletePhraseAudioById(audioKey){
+  if(confirm('¿Eliminar este audio?')){
+    delete S.phraseAudios[audioKey];saveS();renderEditMode();
+  }
+}
+
+function addCustomPhrase(levelId){
+  const frase=document.getElementById(`nf-frase-${levelId}`).value.trim();
+  const wordsRaw=document.getElementById(`nf-words-${levelId}`).value.trim();
+  if(!frase||!wordsRaw){alert('Escribe la frase y las palabras clave');return;}
+  const words=wordsRaw.split(',').map(w=>w.trim()).filter(w=>w);
+  if(!S.customPhrases)S.customPhrases={};
+  if(!S.customPhrases[levelId])S.customPhrases[levelId]=[];
+  const id=`${levelId}_custom_${Date.now()}`;
+  S.customPhrases[levelId].push({id, frase, words, isCustom:true});
+  saveS();renderEditMode();
+  const body=document.getElementById(`ebody-${levelId}`);
+  const arrow=document.getElementById(`earr-${levelId}`);
+  if(body&&!body.classList.contains('open')){body.classList.add('open');arrow?.classList.add('open');}
+}
+
+function deleteCustomPhrase(levelId, phraseId){
+  if(!confirm('¿Eliminar esta frase?'))return;
+  if(S.customPhrases&&S.customPhrases[levelId]){
+    S.customPhrases[levelId]=S.customPhrases[levelId].filter(p=>p.id!==phraseId);
+  }
+  // Also delete audio
+  const audioKey=getPhraseAudioKey(phraseId);
+  if(S.phraseAudios)delete S.phraseAudios[audioKey];
+  saveS();renderEditMode();
+}
+
+function loadWordAudio(imgKey){
+  const inp=document.getElementById('audioPicker');
+  inp.onchange=async()=>{
+    const file=inp.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=e=>{
+      if(!S.wordAudios)S.wordAudios={};
+      S.wordAudios[imgKey]=e.target.result;saveS();
+      renderEditMode();
+    };
+    reader.readAsDataURL(file);inp.value='';
+  };
+  inp.click();
+}
+
+function deletePhraseAudio(lid){
+  if(confirm('¿Eliminar el audio de esta frase?')){delete S.phraseAudios[lid];saveS();renderEditMode();}
+}
+
+function changeWordImg(imgKey,wi,sil){
+  const inp=document.getElementById('imgPickerGlobal');
+  inp.onchange=()=>{
+    const file=inp.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=e=>{S.customImgs[imgKey]=e.target.result;saveS();renderEditMode();};
+    reader.readAsDataURL(file);inp.value='';
+  };
+  inp.click();
+}
+
+// Emoji picker for new words
+const EMOJI_LIST=['😊','👦','👧','👩','👨','🐱','🐶','🐸','🦆','🐒','🐢','🦁','🐯','🐷','🐰','🦋','🌸','🌺','🌈','☀️','⭐','🌙','❄️','🔥','💧','🍎','🍊','🍋','🍇','🍓','🍕','🍔','🍩','🎂','🧁','🚗','🚀','✈️','🚲','⚽','🎸','🎨','📚','🏠','🎉','🎁','💎','🔑','🪄','⚔️','🛡️','🎭','🎪','🧸','🪆','🎵','🎤','🎬','📷','🔬','🧪','💡','⚡','🌊','🏔️','🌴','🌵','🌻','🍄','🦜','🦋','🐝','🦀','🐙','🦑','🐬','🦈','🦔','🐿️','🦦'];
+
+function pickEmojiForWord(sil){
+  // Remove existing picker
+  const existing=document.getElementById(`emoji-picker-${sil}`);
+  if(existing){existing.remove();return;}
+  const picker=document.createElement('div');
+  picker.id=`emoji-picker-${sil}`;
+  picker.style.cssText=`position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:white;border:2px solid var(--border);border-radius:var(--radius-sm);padding:12px;z-index:600;width:90%;max-width:400px;box-shadow:var(--shadow-lg);display:flex;flex-wrap:wrap;gap:6px;max-height:200px;overflow-y:auto;`;
+  EMOJI_LIST.forEach(em=>{
+    const btn=document.createElement('button');
+    btn.style.cssText='font-size:24px;background:none;border:none;cursor:pointer;padding:4px;border-radius:8px;';
+    btn.textContent=em;
+    btn.onclick=()=>{
+      document.getElementById(`em-val-${sil}`).value=em;
+      document.getElementById(`em-btn-${sil}`).textContent=em;
+      picker.remove();
+    };
+    picker.appendChild(btn);
+  });
+  // Also add option for local photo
+  const photoBtn=document.createElement('button');
+  photoBtn.style.cssText='font-size:14px;font-weight:700;background:var(--accent);color:white;border:none;cursor:pointer;padding:6px 12px;border-radius:8px;width:100%;margin-top:6px;font-family:Quicksand,sans-serif;';
+  photoBtn.textContent='📷 Elegir foto del iPad';
+  photoBtn.onclick=()=>{
+    picker.remove();
+    const inp=document.getElementById('imgPickerGlobal');
+    inp.onchange=()=>{
+      const file=inp.files[0];if(!file)return;
+      const reader=new FileReader();
+      const word=document.getElementById(`aw-${sil}`).value.trim()||'custom';
+      const imgKey=`custom_${sil}_${word}`;
+      reader.onload=e=>{
+        S.customImgs[imgKey]=e.target.result;saveS();
+        document.getElementById(`em-val-${sil}`).value='📷';
+        document.getElementById(`em-btn-${sil}`).textContent='📷';
+        document.getElementById(`em-btn-${sil}`).dataset.imgKey=imgKey;
+      };
+      reader.readAsDataURL(file);inp.value='';
+    };
+    inp.click();
+  };
+  picker.appendChild(photoBtn);
+  document.body.appendChild(picker);
+}
+
+function addCustomWord(sil,lid){
+  const inp=document.getElementById(`aw-${sil}`);
+  const val=inp.value.trim();if(!val)return;
+  const em=document.getElementById(`em-val-${sil}`).value||'✏️';
+  const imgKey=document.getElementById(`em-btn-${sil}`)?.dataset?.imgKey||`custom_${sil}_${val}`;
+  if(!S.customWords[sil])S.customWords[sil]=[];
+  S.customWords[sil].push({w:val,em,img:imgKey});
+  saveS();inp.value='';
+  document.getElementById(`em-val-${sil}`).value='✏️';
+  document.getElementById(`em-btn-${sil}`).textContent='😊';
+  renderEditMode();
+  const lv=LEVELS.find(l=>l.sils.includes(sil));
+  if(lv){const body=document.getElementById(`ebody-${lv.id}`),arrow=document.getElementById(`earr-${lv.id}`);if(body&&!body.classList.contains('open')){body.classList.add('open');arrow?.classList.add('open');}}
+}
+
+// ============================================================
+// ADMIN
+// ============================================================
+function renderAdmin(){
+  applyTheme();
+  document.getElementById('nameEdit').value=S.childName||'';
+  document.getElementById('adminSessions')&&(document.getElementById('adminSessions').textContent=S.gamesPlayed||0);
+  const lv=document.getElementById('adminLevels');lv.innerHTML='';
+  LEVELS.forEach(l=>{
+    const unlocked=S.unlockedLevels.includes(l.id);
+    const plays=S.levelPlays[l.id]||0;
+    const tier=getTier(l.id);
+    const tierText=tier===3?'Nivel máximo':tier===2?`Nivel medio (${plays} partidas)`:plays>0?`Básico (${plays} partidas)`:'Sin empezar';
+    const row=document.createElement('div');row.className='level-adm-row';
+    row.innerHTML=`<div><div class="lar-name">${l.emoji} ${l.name}</div><div class="lar-detail">${tierText} · ${'⭐'.repeat(S.levelStars[l.id]||0)||'Sin estrellas'}</div></div><button class="tog ${unlocked?'on':'off'}" onclick="toggleLv('${l.id}')">${unlocked?'Bloquear':'Desbloquear'}</button>`;
+    lv.appendChild(row);
+  });
+  const as=document.getElementById('adminStats');
+  if(as)as.innerHTML=`<div class="cs-box"><div class="cs-n">${S.gamesPlayed||0}</div><div class="cs-l">Partidas</div></div><div class="cs-box"><div class="cs-n">${S.streak||0}</div><div class="cs-l">Racha 🔥</div></div><div class="cs-box"><div class="cs-n">${Object.values(S.levelStars||{}).filter(v=>v>=3).length}</div><div class="cs-l">Perfectos</div></div>`;
+}
+
+function saveNameAdmin(){const n=document.getElementById('nameEdit').value.trim();if(!n)return;S.childName=n;saveS();document.getElementById('homeName').textContent=n;alert(`✅ Nombre guardado: "${n}"`);}
+function toggleLv(id){const idx=S.unlockedLevels.indexOf(id);if(idx>=0){if(S.unlockedLevels.length>1)S.unlockedLevels.splice(idx,1);}else S.unlockedLevels.push(id);saveS();renderAdmin();}
+function confirmReset(){if(confirm(`¿Seguro que quieres borrar todo el progreso de ${S.childName||'el niño'}?\n(Las imágenes y audios personalizados NO se borran)`)){S={...S,streak:0,gamesPlayed:0,lastDate:null,levelPlays:{},levelStars:{}};saveS();renderAdmin();renderHome();}}
+
+// ============================================================
+// INIT
+// ============================================================
+function init(){
+  applyTheme();
+  if(S.childName){renderHome();goScreen('home');}else goScreen('welcome');
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+init();
+</script>
+</body>
+</html>
